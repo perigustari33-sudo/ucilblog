@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Situs Dalam Pengembangan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: #ffffff;
+            padding: 40px 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        .icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+
+        .status {
+            display: inline-block;
+            background: #e8e8e8;
+            color: #444;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 4px 16px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+            letter-spacing: 0.3px;
+        }
+
+        .sub {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        .desc {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.5;
+            margin: 10px auto 18px;
+            max-width: 400px;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 20px;
+            height: 10px;
+            width: 100%;
+            max-width: 350px;
+            margin: 16px auto 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 65%;
+            height: 10px;
+            background: #3b6ea5;
+            border-radius: 20px;
+        }
+
+        .info {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px 24px;
+            font-size: 14px;
+            color: #444;
+            margin: 16px 0 20px;
+        }
+
+        .info span {
+            background: #f5f5f5;
+            padding: 4px 14px;
+            border-radius: 20px;
+            border: 1px solid #e8e8e8;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 28px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            background: #f9f9f9;
+            color: #222;
+            transition: background 0.15s;
+        }
+
+        .btn-primary {
+            background: #1a2f4a;
+            color: #fff;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: #0f2238;
+        }
+
+        .btn-outline:hover {
+            background: #eaeaea;
+        }
+
+        .footer {
+            margin-top: 28px;
+            font-size: 12px;
+            color: #888;
+            border-top: 1px solid #eee;
+            padding-top: 18px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 28px 18px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .icon {
+                font-size: 44px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="icon">🛠️</div>
+
+        <h1>Situs Dalam Pengembangan</h1>
+        <div class="status">⚙️ proses pengerjaan</div>
+
+        <p class="sub">Kami sedang menyiapkan situs ini</p>
+        <p class="desc">
+            Mohon maaf atas ketidaknyamanannya. Kami akan segera hadir dengan tampilan dan fitur yang lebih baik.
+        </p>
+
+        <!-- progress bar -->
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+
+        <!-- info tambahan -->
+        <div class="info">
+            <span>📅 Target: 2026</span>
+            <span>📌 Versi: 0.8</span>
+        </div>
+
+        <!-- tombol dengan tautan baru -->
+        <div class="actions">
+            <a href="https://www.facebook.com/filmasik21" class="btn btn-primary" target="_blank">🔔 Notifikasi</a>
+            <a href="https://celinebee.cc.cd/" class="btn btn-outline" target="_blank">📋 Halaman lainnya</a>
+        </div>
+
+        <div class="footer">
+            Terima kasih atas kesabaran Anda &bull; Tim pengembang
+        </div>
+    </div>
+
+</body>
+</html>
