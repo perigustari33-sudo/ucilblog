@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
     <title>Situs Dalam Pengembangan</title>
     <style>
         * {
@@ -31,6 +31,41 @@
             text-align: center;
             border: 1px solid #e0e0e0;
         }
+
+        /* ===== STYLE UNTUK KOTAK PENCARIAN ===== */
+        .search-wrapper {
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 2px dashed #e0e0e0;
+        }
+
+        .search-wrapper .gcse-search {
+            text-align: left;
+        }
+
+        /* Perbaikan tampilan agar lebih rapi di mobile */
+        .search-wrapper .gsc-control-cse {
+            padding: 6px 0 !important;
+            border: none !important;
+            background: transparent !important;
+        }
+
+        .search-wrapper .gsc-input-box {
+            border-radius: 30px !important;
+            border: 2px solid #3b6ea5 !important;
+        }
+
+        .search-wrapper .gsc-search-button {
+            border-radius: 30px !important;
+            background: #1a2f4a !important;
+            border: none !important;
+        }
+
+        .search-wrapper .gsc-search-button:hover {
+            background: #0f2238 !important;
+        }
+
+        /* ===== AKHIR STYLE PENCARIAN ===== */
 
         .icon {
             font-size: 56px;
@@ -162,10 +197,16 @@
     </style>
 </head>
 <body>
-<script async src="https://cse.google.com/cse.js?cx=15a1ce67da7bc4cf2">
-</script>
-<div class="gcse-search"></div>
+
     <div class="container">
+
+        <!-- ===== KOTAK PENCARIAN DI PALING ATAS ===== -->
+        <div class="search-wrapper">
+            <script async src="https://cse.google.com/cse.js?cx=15a1ce67da7bc4cf2"></script>
+            <div class="gcse-search"></div>
+        </div>
+        <!-- ===== AKHIR KOTAK PENCARIAN ===== -->
+
         <div class="icon">🛠️</div>
 
         <h1>Situs Dalam Pengembangan</h1>
