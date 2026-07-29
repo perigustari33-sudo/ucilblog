@@ -166,6 +166,28 @@
             border: 1px solid #e8e8e8;
         }
 
+        /* Style untuk link download */
+        .download-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px 24px;
+            margin: 12px 0 16px;
+        }
+
+        .download-links a {
+            color: #1a2f4a;
+            text-decoration: underline;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.15s;
+        }
+
+        .download-links a:hover {
+            color: #3b6ea5;
+        }
+
         .actions {
             display: flex;
             flex-wrap: wrap;
@@ -294,6 +316,12 @@
             <span>📌 Versi: 1.0.26</span>
         </div>
 
+        <!-- Link download APK dengan window.open() -->
+        <div class="download-links">
+            <a href="#" onclick="window.open('https://yadisupri.cloud-ip.cc/android/com.yadisupri.ytauskip.apk', '_blank'); return false;">📥 Download YouTube Auto skip ad_.apk</a>
+            <a href="#" onclick="window.open('https://yadisupri.cloud-ip.cc/android/com.yadisupri.cekimei.v1.0.apk', '_blank'); return false;">📥 Download Cek IMEI_.apk</a>
+        </div>
+
         <!-- tombol dengan tautan baru -->
         <div class="actions">
             <a href="https://t.me/blackskull88_bot?start=Y29weV8tMTAwMzg2NzkzODUxNV82MjNfNjIz" class="btn btn-primary" target="_blank">Fanspage</a>
@@ -306,4 +334,4 @@
     </div>
 
 </body>
-                    </html>
+</html>
