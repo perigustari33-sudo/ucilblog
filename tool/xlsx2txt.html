@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload & Filter Data XLSX - NIK Bogor</title>
+    <!-- SheetJS Library untuk membaca file Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+            padding: 24px 28px;
+        }
+        h1 {
+            font-size: 26px;
+            color: #1a2b3c;
+            margin-bottom: 18px;
+            border-left: 6px solid #2a7de1;
+            padding-left: 18px;
+        }
+        .upload-panel {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 25px;
+            transition: all 0.3s;
+        }
+        .upload-panel:hover {
+            border-color: #2a7de1;
+            background: #f1f5f9;
+        }
+        .upload-panel.dragover {
+            border-color: #2a7de1;
+            background: #e8f0fe;
+        }
+        .upload-btn-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .upload-btn-wrapper input[type=file] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        .btn-upload {
+            padding: 12px 30px;
+            background: #2a7de1;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-upload:hover {
+            background: #1a5fb4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(42,125,225,0.3);
+        }
+        .file-info {
+            margin-top: 15px;
+            color: #475569;
+            font-size: 14px;
+        }
+        .file-info strong {
+            color: #1e293b;
+        }
+        .filter-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px 20px;
+            background: #f8fafc;
+            padding: 20px 22px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            align-items: flex-end;
+            border: 1px solid #e2e8f0;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1 0 160px;
+        }
+        .filter-group label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #2c3e50;
+            letter-spacing: 0.3px;
+        }
+        .filter-group select, .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+            transition: 0.2s;
+            min-width: 120px;
+        }
+        .filter-group select:focus, .filter-group input:focus {
+            border-color: #2a7de1;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(42,125,225,0.15);
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .btn {
+            padding: 9px 22px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .btn-primary {
+            background: #2a7de1;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1a5fb4;
+            transform: translateY(-1px);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #94a3b8;
+        }
+        .btn-outline:hover {
+            background: #f1f5f9;
+        }
+        .btn-success {
+            background: #0b8a5e;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #0a704b;
+        }
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            margin-top: 8px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 1400px;
+        }
+        th {
+            background: #f1f5f9;
+            color: #1e293b;
+            font-weight: 600;
+            padding: 12px 10px;
+            white-space: nowrap;
+            text-align: left;
+            border-bottom: 2px solid #d1d9e6;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+        td {
+            padding: 10px 10px;
+            border-bottom: 1px solid #e9edf2;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+        tr:hover td {
+            background: #fafcff;
+        }
+        .gender-badge {
+            display: inline-block;
+            padding: 2px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .male {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .female {
+            background: #fce7f3;
+            color: #9d174d;
+        }
+        .result-panel {
+            margin-top: 28px;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px 24px;
+            border: 1px solid #dce3ec;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .result-header h3 {
+            font-size: 18px;
+            color: #0b1e33;
+        }
+        .result-output {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 18px 22px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #1e293b;
+        }
+        .result-output .label {
+            color: #94a3b8;
+        }
+        .result-output .value {
+            color: #f1f5f9;
+            font-weight: 500;
+        }
+        .stat {
+            font-size: 13px;
+            color: #475569;
+            background: #eef2f6;
+            padding: 4px 14px;
+            border-radius: 30px;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #94a3b8;
+        }
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .empty-state h3 {
+            color: #475569;
+            margin-bottom: 8px;
+        }
+        @media (max-width: 700px) {
+            .container { padding: 16px; }
+            .filter-panel { flex-direction: column; align-items: stretch; }
+            .btn-group { justify-content: flex-start; }
+            .upload-panel { padding: 20px; }
+        }
+        /* Loading spinner */
+        .spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #2a7de1;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-text {
+            display: none;
+            color: #475569;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>📊 Upload & Filter Data XLSX · NIK Bogor</h1>
+
+    <!-- Upload Panel -->
+    <div class="upload-panel" id="uploadPanel">
+        <div style="font-size: 48px; margin-bottom: 10px;">📁</div>
+        <h3 style="color: #1e293b; margin-bottom: 8px;">Upload File Excel (XLSX)</h3>
+        <p style="color: #64748b; margin-bottom: 18px; font-size: 14px;">
+            Drag & drop file atau klik tombol di bawah
+        </p>
+        <div class="upload-btn-wrapper">
+            <button class="btn-upload">📤 Pilih File XLSX</button>
+            <input type="file" id="fileInput" accept=".xlsx,.xls">
+        </div>
+        <div class="file-info" id="fileInfo">
+            <span>Belum ada file dipilih</span>
+        </div>
+        <div class="spinner" id="loadingSpinner"></div>
+        <div class="loading-text" id="loadingText">Sedang memproses data...</div>
+    </div>
+
+    <!-- Filter Panel -->
+    <div class="filter-panel" id="filterPanel" style="display: none;">
+        <div class="filter-group">
+            <label>🏷️ Kolom Filter</label>
+            <select id="filterColumn">
+                <option value="nama">Nama</option>
+                <option value="nik">NIK</option>
+                <option value="kpj">KPJ</option>
+                <option value="perusahaan">Perusahaan</option>
+                <option value="kecamatan">Kecamatan</option>
+                <option value="kelurahan">Kelurahan</option>
+                <option value="tgl_lahir">Tanggal Lahir</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>🔍 Kata Kunci</label>
+            <input type="text" id="filterKeyword" placeholder="Cari ..." value="">
+        </div>
+        <div class="filter-group">
+            <label>📌 Baris (max 200)</label>
+            <input type="number" id="rowLimit" min="1" max="500" value="20" step="1">
+        </div>
+        <div class="btn-group">
+            <button class="btn btn-primary" id="applyFilterBtn">🔎 Terapkan Filter</button>
+            <button class="btn btn-outline" id="resetFilterBtn">↺ Reset</button>
+            <button class="btn btn-success" id="exportTxtBtn">📥 Export .txt</button>
+            <button class="btn btn-danger" id="clearDataBtn">🗑️ Hapus Data</button>
+        </div>
+    </div>
+
+    <div class="flex-between" id="statsPanel" style="display: none;">
+        <span class="stat" id="rowCountStat">Menampilkan 0 baris</span>
+        <span class="stat" id="genderStat">👤 L: 0 · P: 0</span>
+    </div>
+
+    <div class="table-wrapper" id="tableWrapper">
+        <div class="empty-state" id="emptyState">
+            <div class="icon">📊</div>
+            <h3>Belum Ada Data</h3>
+            <p>Silakan upload file XLSX untuk mulai menganalisis data</p>
+        </div>
+        <table id="dataTable" style="display: none;">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>KPJ</th>
+                    <th>Nama</th>
+                    <th>NIK</th>
+                    <th>Tgl Lahir</th>
+                    <th>Perusahaan</th>
+                    <th>Tgl Aktif</th>
+                    <th>Tgl Nonaktif</th>
+                    <th>Saldo</th>
+                    <th>Jml Kartu</th>
+                    <th>JK</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+            </tbody>
+        </table>
+    </div>
+
+    <div class="result-panel" id="resultPanel" style="display: none;">
+        <div class="result-header">
+            <h3>📄 Hasil Export (format .txt)</h3>
+            <div>
+                <button class="btn btn-success" id="copyResultBtn" style="margin-right: 8px;">📋 Salin</button>
+                <button class="btn btn-primary" id="previewAllBtn">👁️ Preview Semua</button>
+            </div>
+        </div>
+        <div class="result-output" id="resultOutput">
+            <span class="label">Belum ada data. Upload file atau terapkan filter untuk melihat hasil.</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ===================== GLOBAL VARIABLES =====================
+    let rawData = [];
+    let currentData = [];
+    let originalHeaders = [];
+
+    // ===================== FUNGSI UTAMA =====================
+    function getGenderFromNIK(nik) {
+        if (!nik || typeof nik !== 'string' || nik.length < 7) return 'Tidak Diketahui';
+        const digit7 = parseInt(nik.charAt(6), 10);
+        if (isNaN(digit7)) return 'Tidak Diketahui';
+        return digit7 < 4 ? 'Laki-laki' : 'Perempuan';
+    }
+
+    function formatRupiah(angka) {
+        if (angka === undefined || angka === null || isNaN(angka)) return 'Rp 0';
+        return 'Rp ' + Math.round(angka).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        // Coba parse berbagai format
+        if (typeof dateStr === 'number') {
+            // Excel date number
+            try {
+                const d = new Date((dateStr - 25569) * 86400 * 1000);
+                return d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            } catch {
+                return String(dateStr);
+            }
+        }
+        // Jika sudah string, coba format
+        const str = String(dateStr);
+        // Cek format DD-MM-YYYY atau DD/MM/YYYY
+        const match = str.match(/(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+        if (match) {
+            return `${match[1].padStart(2,'0')}-${match[2].padStart(2,'0')}-${match[3]}`;
+        }
+        return str;
+    }
+
+    function normalizeData(row) {
+        // Mapping header dari file Excel ke properti yang konsisten
+        const mapping = {
+            'KABUPATEN': 'KABUPATEN',
+            'KECAMATAN': 'KECAMATAN',
+            'KELURAHAN': 'KELURAHAN',
+            'KPJ': 'KPJ',
+            'NAMA': 'NAMA',
+            'NIK': 'NIK',
+            'TANGGAL_LAHIR': 'TANGGAL_LAHIR',
+            'PERUSAHAAN': 'PERUSAHAAN',
+            'TANGGAL AKTIF': 'TANGGAL_AKTIF',
+            'TANGGAL NONAKTIF': 'TANGGAL_NONAKTIF',
+            'TOTAL SALDO': 'TOTAL_SALDO',
+            'JUMLAH KARTU': 'JUMLAH_KARTU'
+        };
+
+        const normalized = {};
+        for (const [key, value] of Object.entries(row)) {
+            const trimmedKey = key.trim().toUpperCase();
+            let found = false;
+            for (const [original, mapped] of Object.entries(mapping)) {
+                if (trimmedKey === original.trim().toUpperCase()) {
+                    normalized[mapped] = value;
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                // Simpan sebagai properti dengan nama asli
+                normalized[key.trim()] = value;
+            }
+        }
+
+        // Format tanggal
+        if (normalized.TANGGAL_LAHIR) {
+            normalized.TANGGAL_LAHIR = formatDate(normalized.TANGGAL_LAHIR);
+        }
+        if (normalized.TANGGAL_AKTIF) {
+            normalized.TANGGAL_AKTIF = formatDate(normalized.TANGGAL_AKTIF);
+        }
+        if (normalized.TANGGAL_NONAKTIF) {
+            normalized.TANGGAL_NONAKTIF = formatDate(normalized.TANGGAL_NONAKTIF);
+        }
+
+        // Konversi saldo ke number
+        if (normalized.TOTAL_SALDO !== undefined && normalized.TOTAL_SALDO !== null) {
+            const saldo = parseFloat(String(normalized.TOTAL_SALDO).replace(/[^0-9.-]/g, ''));
+            normalized.TOTAL_SALDO = isNaN(saldo) ? 0 : saldo;
+        }
+
+        // Konversi jumlah kartu ke number
+        if (normalized.JUMLAH_KARTU !== undefined && normalized.JUMLAH_KARTU !== null) {
+            const kartu = parseInt(String(normalized.JUMLAH_KARTU).replace(/[^0-9]/g, ''), 10);
+            normalized.JUMLAH_KARTU = isNaN(kartu) ? 0 : kartu;
+        }
+
+        return normalized;
+    }
+
+    // Filter data
+    function filterData(data, column, keyword, limit) {
+        if (!data || data.length === 0) return [];
+        if (!keyword.trim()) {
+            return data.slice(0, limit);
+        }
+        const kw = keyword.trim().toLowerCase();
+        const filtered = data.filter(row => {
+            let val = '';
+            const colMap = {
+                'nama': 'NAMA',
+                'nik': 'NIK',
+                'kpj': 'KPJ',
+                'perusahaan': 'PERUSAHAAN',
+                'kecamatan': 'KECAMATAN',
+                'kelurahan': 'KELURAHAN',
+                'tgl_lahir': 'TANGGAL_LAHIR'
+            };
+            const key = colMap[column] || column;
+            val = row[key] || '';
+            return String(val).toLowerCase().includes(kw);
+        });
+        return filtered.slice(0, limit);
+    }
+
+    // Render table
+    function renderTable(data) {
+        const tbody = document.getElementById('tableBody');
+        const table = document.getElementById('dataTable');
+        const emptyState = document.getElementById('emptyState');
+        const statsPanel = document.getElementById('statsPanel');
+        const filterPanel = document.getElementById('filterPanel');
+        const resultPanel = document.getElementById('resultPanel');
+
+        if (!data || data.length === 0) {
+            table.style.display = 'none';
+            emptyState.style.display = 'block';
+            statsPanel.style.display = 'none';
+            filterPanel.style.display = 'none';
+            resultPanel.style.display = 'none';
+            return;
+        }
+
+        table.style.display = 'table';
+        emptyState.style.display = 'none';
+        statsPanel.style.display = 'flex';
+        filterPanel.style.display = 'flex';
+        resultPanel.style.display = 'block';
+
+        let maleCount = 0, femaleCount = 0;
+        let html = '';
+        data.forEach((row, idx) => {
+            const gender = getGenderFromNIK(row.NIK);
+            if (gender === 'Laki-laki') maleCount++;
+            else if (gender === 'Perempuan') femaleCount++;
+
+            const genderBadge = gender === 'Laki-laki' 
+                ? `<span class="gender-badge male">Laki</span>` 
+                : gender === 'Perempuan' 
+                ? `<span class="gender-badge female">Perempuan</span>` 
+                : `<span class="gender-badge">-</span>`;
+
+            html += `<tr>
+                <td>${idx+1}</td>
+                <td>${row.KPJ || '-'}</td>
+                <td>${row.NAMA || '-'}</td>
+                <td>${row.NIK || '-'}</td>
+                <td>${row.TANGGAL_LAHIR || '-'}</td>
+                <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis;" title="${row.PERUSAHAAN || ''}">${row.PERUSAHAAN || '-'}</td>
+                <td>${row.TANGGAL_AKTIF || '-'}</td>
+                <td>${row.TANGGAL_NONAKTIF || '-'}</td>
+                <td>${formatRupiah(row.TOTAL_SALDO)}</td>
+                <td>${row.JUMLAH_KARTU ?? 0}</td>
+                <td>${genderBadge}</td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+        document.getElementById('rowCountStat').textContent = `Menampilkan ${data.length} baris dari ${rawData.length}`;
+        document.getElementById('genderStat').textContent = `👤 L: ${maleCount} · P: ${femaleCount}`;
+    }
+
+    // Generate TXT output
+    function generateTxt(data) {
+        if (!data || data.length === 0) return 'Tidak ada data yang ditampilkan.';
+
+        let output = '';
+        data.forEach((row, idx) => {
+            const gender = getGenderFromNIK(row.NIK);
+            const saldo = formatRupiah(row.TOTAL_SALDO);
+            const kab = row.KABUPATEN || '-';
+            const kec = row.KECAMATAN || '-';
+            const kel = row.KELURAHAN || '-';
+
+            output += `Kabupaten : ${kab}\n`;
+            output += `Kecamatan : ${kec}\n`;
+            output += `Kelurahan : ${kel}\n`;
+            output += `\n`;
+            output += `NIK: ${row.NIK || '-'}\n`;
+            output += `KPJ: ${row.KPJ || '-'}\n`;
+            output += `Nama: ${row.NAMA || '-'}\n`;
+            output += `\n`;
+            output += `Saldo: ${saldo}\n`;
+            output += `PT: ${row.PERUSAHAAN || '-'}\n`;
+            output += `KPJ TUNGGAL/SENSOR\n`;
+            output += `Jenis Kelamin: ${gender}\n`;
+            output += `Tanggal Lahir: ${row.TANGGAL_LAHIR || '-'}\n`;
+            if (idx < data.length - 1) output += `\n${'='.repeat(50)}\n\n`;
+        });
+        return output;
+    }
+
+    // ===================== READ EXCEL FILE =====================
+    function readExcelFile(file) {
+        const reader = new FileReader();
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const loadingText = document.getElementById('loadingText');
+        const fileInfo = document.getElementById('fileInfo');
+
+        loadingSpinner.style.display = 'block';
+        loadingText.style.display = 'block';
+        fileInfo.innerHTML = `<span>📂 <strong>${file.name}</strong> - Sedang memproses...</span>`;
+
+        reader.onload = function(e) {
+            try {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+                
+                // Ambil sheet pertama
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+
+                if (!jsonData || jsonData.length === 0) {
+                    alert('File tidak mengandung data yang valid.');
+                    loadingSpinner.style.display = 'none';
+                    loadingText.style.display = 'none';
+                    return;
+                }
+
+                // Normalisasi data
+                rawData = jsonData.map(row => normalizeData(row));
+                originalHeaders = Object.keys(jsonData[0] || {});
+
+                // Update UI
+                fileInfo.innerHTML = `
+                    <span>✅ <strong>${file.name}</strong> - ${rawData.length} baris data berhasil dimuat</span>
+                `;
+                loadingSpinner.style.display = 'none';
+                loadingText.style.display = 'none';
+
+                // Terapkan filter default
+                applyFilter();
+
+                // Enable download
+                document.getElementById('exportTxtBtn').disabled = false;
+
+            } catch (error) {
+                console.error('Error reading file:', error);
+                alert('Gagal membaca file. Pastikan file adalah XLSX yang valid.');
+                loadingSpinner.style.display = 'none';
+                loadingText.style.display = 'none';
+                fileInfo.innerHTML = `<span style="color: #dc2626;">❌ Gagal memproses file</span>`;
+            }
+        };
+
+        reader.onerror = function() {
+            alert('Gagal membaca file.');
+            loadingSpinner.style.display = 'none';
+            loadingText.style.display = 'none';
+        };
+
+        reader.readAsArrayBuffer(file);
+    }
+
+    // ===================== EVENT HANDLERS =====================
+    function applyFilter() {
+        if (!rawData || rawData.length === 0) {
+            renderTable([]);
+            document.getElementById('resultOutput').textContent = 'Belum ada data. Upload file XLSX terlebih dahulu.';
+            return;
+        }
+
+        const column = document.getElementById('filterColumn').value;
+        const keyword = document.getElementById('filterKeyword').value;
+        const limit = parseInt(document.getElementById('rowLimit').value, 10) || 20;
+        const filtered = filterData(rawData, column, keyword, limit);
+        currentData = filtered;
+        renderTable(filtered);
+        document.getElementById('resultOutput').textContent = generateTxt(filtered);
+    }
+
+    function resetFilter() {
+        document.getElementById('filterKeyword').value = '';
+        document.getElementById('filterColumn').value = 'nama';
+        document.getElementById('rowLimit').value = 20;
+        applyFilter();
+    }
+
+    function clearData() {
+        if (rawData.length > 0 && !confirm('Hapus semua data yang telah diupload?')) return;
+        rawData = [];
+        currentData = [];
+        renderTable([]);
+        document.getElementById('resultOutput').textContent = 'Data telah dihapus. Upload file XLSX untuk mulai kembali.';
+        document.getElementById('fileInfo').innerHTML = `<span>Belum ada file dipilih</span>`;
+        document.getElementById('filterPanel').style.display = 'none';
+        document.getElementById('statsPanel').style.display = 'none';
+        document.getElementById('resultPanel').style.display = 'none';
+        document.getElementById('exportTxtBtn').disabled = true;
+    }
+
+    // ===================== DRAG & DROP =====================
+    const uploadPanel = document.getElementById('uploadPanel');
+
+    uploadPanel.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadPanel.classList.add('dragover');
+    });
+
+    uploadPanel.addEventListener('dragleave', () => {
+        uploadPanel.classList.remove('dragover');
+    });
+
+    uploadPanel.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadPanel.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const file = files[0];
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (ext === 'xlsx' || ext === 'xls') {
+                readExcelFile(file);
+            } else {
+                alert('Mohon upload file dengan ekstensi .xlsx atau .xls');
+            }
+        }
+    });
+
+    // ===================== EVENT LISTENERS =====================
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        if (this.files.length > 0) {
+            readExcelFile(this.files[0]);
+        }
+        this.value = '';
+    });
+
+    document.getElementById('applyFilterBtn').addEventListener('click', applyFilter);
+    document.getElementById('resetFilterBtn').addEventListener('click', resetFilter);
+    document.getElementById('clearDataBtn').addEventListener('click', clearData);
+
+    // Export TXT (download)
+    document.getElementById('exportTxtBtn').addEventListener('click', function() {
+        const content = document.getElementById('resultOutput').textContent;
+        if (!content || content.includes('Belum ada data') || content.includes('Tidak ada data')) {
+            alert('Tidak ada data untuk diexport. Upload file dan terapkan filter terlebih dahulu.');
+            return;
+        }
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        const timestamp = new Date().toISOString().slice(0,10);
+        link.download = `data_nik_${timestamp}.txt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+    });
+
+    // Copy result
+    document.getElementById('copyResultBtn').addEventListener('click', function() {
+        const content = document.getElementById('resultOutput').textContent;
+        if (!content || content.includes('Belum ada data') || content.includes('Tidak ada data')) {
+            alert('Tidak ada data untuk disalin.');
+            return;
+        }
+        navigator.clipboard.writeText(content).then(() => {
+            alert('📋 Hasil berhasil disalin ke clipboard!');
+        }).catch(() => {
+            // Fallback
+            const textarea = document.createElement('textarea');
+            textarea.value = content;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert('📋 Hasil berhasil disalin ke clipboard!');
+        });
+    });
+
+    // Preview all data
+    document.getElementById('previewAllBtn').addEventListener('click', function() {
+        if (!rawData || rawData.length === 0) {
+            alert('Belum ada data untuk ditampilkan.');
+            return;
+        }
+        const fullTxt = generateTxt(rawData);
+        document.getElementById('resultOutput').textContent = fullTxt;
+        alert(`✅ Menampilkan semua ${rawData.length} data di panel hasil.`);
+    });
+
+    // Enter key untuk filter
+    document.getElementById('filterKeyword').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') applyFilter();
+    });
+
+    // ===================== INITIAL STATE =====================
+    document.getElementById('exportTxtBtn').disabled = true;
+    document.getElementById('filterPanel').style.display = 'none';
+    document.getElementById('statsPanel').style.display = 'none';
+    document.getElementById('resultPanel').style.display = 'none';
+
+    // Cek apakah ada data default (dari file yang di-include)
+    if (typeof rawDataDefault !== 'undefined' && rawDataDefault.length > 0) {
+        rawData = rawDataDefault;
+        applyFilter();
+    }
+
+    console.log('📊 Aplikasi siap digunakan. Upload file XLSX untuk memulai.');
+</script>
+</body>
+</html>
