@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pencarian Erek-Erek 2D</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 20px; }
+  .container { max-width: 900px; margin: auto; background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+  h1 { text-align: center; color: #333; }
+  .search-box { display: flex; gap: 10px; margin-bottom: 20px; }
+  .search-box input { flex: 1; padding: 12px 15px; font-size: 16px; border: 2px solid #ddd; border-radius: 8px; outline: none; }
+  .search-box input:focus { border-color: #007bff; }
+  .search-box button { padding: 12px 25px; background: #007bff; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; }
+  .search-box button:hover { background: #0056b3; }
+  .result-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+  .result-item { background: #fafafa; border: 1px solid #eee; border-radius: 8px; padding: 10px; text-align: center; }
+  .result-item img { max-width: 100%; height: auto; border-radius: 6px; }
+  .result-item .label { margin-top: 8px; font-size: 12px; color: #666; word-break: break-word; }
+  .no-result { text-align: center; color: #999; padding: 30px; font-style: italic; grid-column: 1/-1; }
+
+  /* === FOOTER === */
+  .footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    color: #888;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🔍 Pencarian Erek-Erek 2D Bergambar</h1>
+  <p style="text-align:center;color:#666;">
+    Cari angka 2 digit (misal: <b>00</b>) atau kata (misal: <b>penyair</b>, <b>tapir</b>)<br>
+    <small>Bisa juga multi-kata, misal: <b>penyair tapir</b> (hasil gabungan keduanya)</small>
+  </p>
+
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Masukkan angka atau kata..." autocomplete="off">
+    <button onclick="cariData()">Cari</button>
+  </div>
+
+  <div id="hasil" class="result-grid"></div>
+
+  <!-- === FOOTER === -->
+  <div class="footer">
+    Hak Cipta: yadisupri85©
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   DAFTAR URL GAMBAR EREK-EREK 2D
+   ========================================================= */
+const daftarUrl = [
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/00-Penyair-Tapir-Sempritan-Rembulan-Kalender-Kumbakarna.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/01-Setan-Ikan-Bandeng-Obor-Jambu-Mente-Tangan-Jual-Ikan-Bacang-Betara-Kala.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/02-Sarjana-Bekicot-Lompat-Tinggi-Wortel-Sandal-Jangkar-Betara-Bromo.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/03-Orang-Mati-Angsa-Lompat-Galah-Sawi-Kaki-Cemburu-Subali.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/04-Kwan-Im-Burung-Merak-Lompat-Jauh-Kangkung-Balon-Baca-Buku-Petai-Dewi-Ratih.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/05-Kepala-Rampok-Singa-Loncat-Indah-Merica-Kayu-Manis-Kereta-Api-Jemur-Baju-Garu-Langit.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/06-Dewi-Bulan-Kelinci-Renang-Kapas-Boneka-Daun-Teh-Bantuan-Dewi-Sri.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/07-Pelayan-Babi-Perahu-Layar-Bawang-Kapal-Keruk-Pancing-Arang-Sulastri.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/08-Maling-Kecil-Macan-Motor-Boat-Kecubung-Pasar-Daun-Sop-Terlanggar-Talamaria.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/09-Jendral-Kerbau-Mendayung-Pinang-Kates-Pepaya-Jala-Gadis-Bima.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/10-Kelenteng-Kelabang-Lipan-Menyelam-Kelapa-Bir-Panjat-Pohon-Rileks-Saung-Pemujaan.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/11-Menteri-Serakah-Anjing-Lari-Cepat-Kipas-Sapu-Jamur-Kerudung-Sengkuni.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/12-Penasehat-Perang-Kuda-Lari-Gawang-Lemon-Bola-Lampu-Luku-Air-Panas-Wibisana.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/13-Penjaga-Pintu-Gajah-Lari-Estafet-Kipas-Angin-Cuci-Rambut-Sarang-Burung-Keris-Prabukesa.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/14-Potong-Babi-Onta-Tolak-Peluru-Kentang-Jembatan-Spet-Suntikan-Beras-Jaya-Langsuan.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/15-Hakim-Tikus-Lempar-Martil-Kantor-Pos-Sekrup-Karangtina-Lengkuas-Kresna.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/16-Sakit-Gudig-Tawon-Lempar-Cakram-Surat-Nanas-Duren-Pohon-Pisang-Jembawan.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/17-Pemadat-Bangau-Aren-Lempar-Lembing-Durian-Telepon-Api-Buto-Terong.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/18-Kas-Uang-Parang-Kucing-Polo-Air-Lombok-Kantor-Polisi-Jual-es-Bisma.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/19-Pelacur-Kelas-Tinggi-Kupu-Kupu-Sepak-bola-Lotre-Srikaya-Ban-Sepeda-Cabut-gigi-Banowati.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/20-Istri-Sejati-Lalat-Volley-ball-Palu-Bermesraan-Kedai-Tuak-Ban-Mobil-Setiawati.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/21-Pelacur-Umum-Burung-Walet-Bayam-Memotret-Bulu-tangkis-Permen-Kapak-Lesmanawati.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/22-Peti-Mati-Capung-Tenis-Terong-Buah-Kana-Cina-Cuci-Muka-Harmonika-Sembadra.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/23-Setan-Gantung-Kera-Bedak-Bola-Basket-Pisang-Piano-Potong-Ayam-Wilkampana.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/24-Sumber-Air-Kodok-Tenis-Meja-Wortel-Sikat-Gigi-Bersolek-Kelentang-Dewa-Ruci.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/25-Menantu-Raja-Burung-Rajawali-Base-Ball-Memasak-Menelpon-Jagung-Pasta-Gigi-Kangsa-Dewa.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/26-Raja-Naga-Hockey-Uang-Logam-Ganggang-Kebaya-Mesin-Jahit-Samiaji.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/27-Wanita-Cantik-Kura-Kura-Bola-Sodok-Sabun-Bubuk-Bidan-Isi-Minyak-Otak-Dewi-Supraba.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/28-Pemotong-Kayu-Pala-Ayam-Menembak-Tomat-Montir-Jarum-Nakula.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/29-Pendeta-Sakti-Belut-Panahan-Kursi-Koran-Uang-Perak-Truk-Barang-Sidiwacana.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/30-Nelayan-Ikan-Mas-Angkat-Besi-Belimbing-Pembunuh-Tas-WC-Naga-Tatmala.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/31-Anggota-Kelamin-Udang-Senam-Cacing-Pita-Jas-Hujan-Cari-Uang-Sangkar-Burung-Yuyu-Rumpung.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/32-Ahli-Nujum-Ular-Sarang-Lebah-Yudo-Kamar-Mandi-Cari-Kerang-Tali-Abiyasa.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/33-Pengemis-Laba-Laba-Gulat-Uang-Tahu-Gigi-Sabun-Petruk.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/34-Orang-Buta-Rusa-Jelarut-Silat-Burung-Merpati-Jamu-Paru-Paru-Destarata.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/35-Wanita-Kambing-Tinju-Lambung-Jalan-Jalan-Boncengan-Drupadi.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/36-Pendeta-Wanita-Musang-Kaca-Mata-Sekop-Balapan-Sepeda-Manggis-Apotik-Sayem-Prabu.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/37-Si-Bongkok-Ikan-Gabus-Pacaran-Balapan-Mobil-Anggur-BH-Truk-Gareng.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/38-Putri-Raja-Burung-Cendrawasih-Balapan-Sepeda-Motor-Engsel-Drum-Tong-Kapal-Perang-Hamil-Untari.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/39-Kekasih-Kalajengking-Balapan-Kuda-Kedelai-Topi-Bemo-Narasoma.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/40-Penolong-Burung-Gelatik-Duku-Golf-Tang-Peci-Jual-Jagung-Widura.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/41-Pahlawan-Kepiting-Lompat-Kuda-Lilin-Paku-Jering-Sabuk-Warsaya.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/42-Jejaka-Tua-Buaya-Berjalan-Catur-Marinir-Pakis-Dokter-Lesmana-Widakta.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/43-Janda-Muda-Ikan-Suro-Anggar-Langsat-Bom-Mawar-Grendel-Sembadra.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/44-Brandal-Badak-Ski-Air-Kwaci-Gadung-Seruling-Sisir-Citraksa.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/45-Pengembara-Banteng-Terbang-Layang-Mata-Mata-Ketupat-Kendi-Tas-Rama.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/46-Nenek-Moyang-Orang-Utan-Terjun-Bebas-Sikat-Toko-Rumah-Sakit-Tukar-Ban-Hyang-Wenang.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/47-Banci-Keladi-Zebra-Upacara-Bendera-Tangga-Hotel-Sirkus-Stuna.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/48-Si-Ceroboh-Bioskop-Landak-Main-Catur-Garuk-Labu-Botol-Obat-Dasamuka.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/49-Drakula-Kelelawar-Lipstik-Mendaki-Gunung-Cetok-Rok-Orang-Beranak-Betari-Durga.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/50-Orang-Eskimo-Beruang-Pembawa-Obor-Pacul-Guru-Daun-Sirih-Jual-Sate-Bagong.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/51-Ahli-Filsafat-Kerang-Lonceng-Rapat-Kerja-Patil-Lele-Tebu-Celana-Narodo.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/52-Raja-Laut-Minum-Racun-Ikan-Paus-Main-Tali-Matahari-Buah-Nona-Dompet-Antasena.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/53-Penjual-Silat-Ikan-Duri-Akrobat-Rambutan-Kirim-Surat-Garam-Taxi-Abimanyu.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/54-Raja-Kera-Ikan-Lele-Juara-Sepatu-Roda-Kalung-Dokar-Kursi-Malas-Kera-Hanoman.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/55-Pertapa-Di-Klenteng-Kangguru-Kasti-Gelang-Memetik-Daun-Tembakau-Pengaron-Raden-Seta.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/56-Budak-Ikan-Duyung-Ringen-Bengkung-Kenanga-Cikar-Makan-Durian-Limbuk.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/57-Anak-Sakti-Ulat-Sutera-Layang-Layang-Sepatu-Jual-Bakso-Tempat-Tidur-Kunyit-Gatot-kaca.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/58-Penari-Cumi-Cumi-Hantu-Kelereng-Rumah-Sekolahan-Pacuan-Kuda-Selir.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/59-Putra-Raja-Jam-Dinding-Kakak-Tua-Dakon-Kedondong-Kencur-Kaos-Raden-Lesmana.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/60-Kepala-Polisi-Cecak-Curi-Ayam-Karambol-Delima-Handuk-Pot-Bunga-Sentiyaki.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/61-Pedagang-Kecoa-Gendongan-Kaca-mata-Roti-Buku-Mayat-Baladewa.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/62-Pagoda-Walang-Kadung-Petan-Meriam-Termos-Selendang-Terhalang-Sapta-Arga.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/63-Pendekar-Wanita-Kumbang-Treksando-Bantal-Jendela-Belanja-Talas-Larasati.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/64-Dewa-Uang-Kuda-Laut-Bandulan-Guling-Apel-Guling-Kecambah-Ronggeng-Betara-Indra.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/65-Raja-Setan-Ikan-Hiu-Kayang-Klompen-Petromak-isap-Candu-Jipang-Kala-Srenggi.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/66-Dewa-Bumi-Jerapah-Sawatan-Sukun-Korek-Ubi-Potong-Padi-Gelas-Anta-Boga.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/67-Penjual-Daging-Burung-Onta-Engrang-Sendok-Hadiah-Kekasih-Kacang-Panjang-Korek-Api-Abilawa.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/68-Pembuat-Pedang-Burung-Hantu-Panjat-Pinang-Pisau-Garpu-Sapi-Duel-Ubi-Cepot.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/69-Pencari-Jejak-Mimi-Engklek-Gunting-Gunung-Tukang-Jam-Peti-Mati-Antareja.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/70-Panglima-Keledai-Tarik-Tambang-Lampu-Minyak-Rumah-Makan-Ubi-Kayu-Adipati-Karna.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/71-Pemburu-Macan-Tutul-Pistol-Mainan-Kr-Loncat-Kacang-Goreng-Sumur-Kemeja-Pandu.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/72-Dewa-Langit-Ikan-Dorang-Ik-Ol-Kran-Air-Arloji-Tugu-Menanam-Kelapa-Betara-Guru.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/73-Tuan-Tanah-Semut-Sikat-Bulu-Bolpen-Anting-Anting-Bintang-Dursasana.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/74-Bajak-Laut-Pinguin-Setipan-Gentong-Radio-Kenari-Kamera-Ketapel-Indrajit.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/75-Suami-Istri-Bebek-Balapan-Nangka-Kweni-Jatuh-Lemari-Ratih-Kamajaya.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/76-Jendral-Wanita-Nyamuk-Teplekan-Kasur-Ambil-Air-Mata-Timbangan-Srikandi.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/77-Walikota-Penyu-Bermain-Bekel-Pare-Cincin-Payung-Anjing-bercinta-Togog.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/78-Orang-Kaya-Ikan-Gergaji-Balap-Becak-Semangka-Ketumbar-Wajan-Jual-Obat-Lesmana-Mandrakumara.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/79-Jendral-Serakah-Orong-Orong-Panco-Jeruk-Bali-Kompor-Jagung-Main-main-Suyudana.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/80-Kepala-Desa-Bajing-Apollo-Pensil-Siram-sayur-Ceret-Semar.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/81-Penipu-Kancil-Dam-daman-Janur-Aren-Hidung-Cangkir-Menyulam-Aswatama.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/82-Gembala-Sapi-Kuda-Nil-Lilin-Kartu-As-Telinga-Berlian-Lencana-Udawa.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/83-Ibu-Suri-Ikan-Layur-Dadu-Kumis-Pipa-Buncis-Berkasihan-Dewi-Kunti.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/84-Budha-Kalkun-Salto-Bibir-Kol-Berkunjung-Kacang-Koprol-Bagaspati.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/85-Wanita-Sihir-Jangkrik-Tumbuhan-Rotan-Latihan-Hansip-Teratai-Pintu-Sarpakenaka.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/86-Pencabut-maut-Ikan-Sampan-Gerak-Badan-Salak-Dapat-Lencana-Rokok-Timun-Yamadipati.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/87-Orang-Gila-Burung-Betet-Kerja-Bakti-Botol-Toilet-Bengkuang-Naik-Kapal-Terbang-Buriswara.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/88-Dewi-Mega-Domba-Balapan-Karung-Jeruk-Manis-Piring-Bawang-Meluku-Wilutama.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/89-Pemabuk-Ikan-Bendera-Lampu-Setopan-Jeruk-Keprok-Ember-Berciuman-Tambal-Ban-Bomanarakasura.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/90-Tawanan-Trenggiling-Perempatan-Jalan-Pil-Ke-Pasar-Berjudi-Sawah-Dewi-Shinta.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/91-Siluman-Air-Serigala-Ambulans-Bambu-Toples-Kedai-Bambu-Tanam-Padi-Witaksini.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/92-Pendekar-Kipas-Besi-Ikan-Tengiri-Garis-Finish-Apokat-Kain-Sabun-Sarung-Siti-Sundari.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/93-Penjilat-Babi-Hutan-Perahu-Layar-Kaos-Kaki-Jengkol-Larangan-Durna.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/94-Kwan-Kong-Ikan-Kakap-Jahit-Baju-Pemandian-Jambu-Tidur-Pena-Prabu-Salya.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/95-Petani-Burung-Perkutut-Jalan-Raya-Kunci-Ceret-Listrik-Pisau-Cukur-Menampi-Padi-Irawan.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/96-Prajurit-Ikan-Nus-Laut-Mangga-Minyak-Angin-Selimut-Ayam-Betina-Citrayuda.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/97-Raksasa-Tokek-Kali-Brantas-Sirsak-Ambil-Kelapa-Tuli-Lemari-Es-Prahasta.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/98-Penjaga-Malam-Ikan-Tongkol-TV-Lengkeng-Kecelakaan-Kupas-Kelapa-Ubi-Obat-Trijati.png",
+  "https://yadisupri.cloud-ip.cc/erek-erek2d/99-Hidung-Belang-Burung-Jalak-Sawo-Bayi-Kodak-Meja-Menenun-Arjuna.png"
+];
+
+/* =========================================================
+   FUNGSI VALIDASI INPUT
+   Return: { valid: true/false, pesan: "...", keywords: [...] }
+   ========================================================= */
+function validasiInput(input) {
+  const bersih = input.trim();
+  if (!bersih) {
+    return { valid: false, pesan: "Silakan masukkan angka atau kata pencarian." };
+  }
+
+  const hanyaAngka = /^[0-9]+$/.test(bersih);
+  const hanyaHuruf = /^[a-zA-Z\s]+$/.test(bersih);
+  const campur     = /[0-9]/.test(bersih) && /[a-zA-Z]/.test(bersih);
+
+  // ❌ Campur angka & huruf
+  if (campur) {
+    return { valid: false, pesan: "Input tidak boleh mencampur angka dan kata. Masukkan angka saja (2 digit) atau kata saja." };
+  }
+
+  // ❌ Input angka tapi bukan 2 digit
+  if (hanyaAngka && bersih.length !== 2) {
+    return { valid: false, pesan: "Angka harus tepat 2 digit (contoh: 00, 01, 99)." };
+  }
+
+  // ✅ Angka 2 digit → langsung cari
+  if (hanyaAngka && bersih.length === 2) {
+    return { valid: true, keywords: [bersih] };
+  }
+
+  // ✅ Kata (bisa 1 atau lebih) → pecah jadi array
+  if (hanyaHuruf) {
+    const keywords = bersih.toLowerCase().split(/\s+/).filter(k => k.length > 0);
+    return { valid: true, keywords: keywords };
+  }
+
+  return { valid: false, pesan: "Format input tidak dikenali." };
+}
+
+/* =========================================================
+   FUNGSI PENCARIAN
+   ========================================================= */
+function cariData() {
+  const input = document.getElementById("searchInput").value;
+  const hasilDiv = document.getElementById("hasil");
+  hasilDiv.innerHTML = "";
+
+  // Validasi input
+  const cek = validasiInput(input);
+  if (!cek.valid) {
+    alert("⚠️ " + cek.pesan);
+    return;
+  }
+
+  const keywords = cek.keywords;
+
+  // Filter: cocokkan jika SALAH SATU keyword ada di nama file (OR)
+  const hasil = daftarUrl.filter(url => {
+    const namaFile = url.split("/").pop().toLowerCase();
+    return keywords.some(k => namaFile.includes(k));
+  });
+
+  if (hasil.length === 0) {
+    hasilDiv.innerHTML = '<div class="no-result">❌ Tidak ada hasil untuk: <b>' + input + '</b></div>';
+    return;
+  }
+
+  // Tampilkan hasil
+  hasil.forEach(url => {
+    const namaFile = decodeURIComponent(url.split("/").pop().replace(".png", ""));
+    const div = document.createElement("div");
+    div.className = "result-item";
+    div.innerHTML = `
+      <img width="96%" src="${url}" alt="${namaFile}" loading="lazy"
+           onerror="this.src='https://via.placeholder.com/200x200?text=Tidak+Ditemukan'">
+      <div class="label">${namaFile}</div>
+    `;
+    hasilDiv.appendChild(div);
+  });
+}
+
+/* Enter untuk mencari */
+document.getElementById("searchInput").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") cariData();
+});
+</script>
+
+</body>
+</html>
