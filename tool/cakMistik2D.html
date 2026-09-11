@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+  <title>Kombinasi Angka 2D</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: white;
+      padding: 24px;
+      border-radius: 14px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      text-align: center;
+      color: #0f172a;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 7px;
+      font-weight: bold;
+    }
+
+    input,
+    textarea,
+    button {
+      width: 100%;
+      font-size: 16px;
+      border-radius: 8px;
+    }
+
+    input,
+    textarea {
+      padding: 11px;
+      border: 1px solid #cbd5e1;
+    }
+
+    textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    button {
+      padding: 12px;
+      border: none;
+      cursor: pointer;
+      color: white;
+      background: #2563eb;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    .button-reset {
+      background: #64748b;
+    }
+
+    .button-reset:hover {
+      background: #475569;
+    }
+
+    .info {
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      padding: 12px;
+      margin: 15px 0;
+      line-height: 1.6;
+    }
+
+    .error {
+      color: #dc2626;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .result-box {
+      margin-top: 24px;
+    }
+
+    .result-section {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+    }
+
+    .result-section h3 {
+      margin-top: 0;
+      color: #0f172a;
+    }
+
+    .digit-result {
+      padding: 8px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .digit-result:last-child {
+      border-bottom: none;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 9px;
+      margin: 3px;
+      border-radius: 6px;
+      background: #dbeafe;
+      color: #1e3a8a;
+      font-weight: bold;
+    }
+
+    .badge-lama {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge-baru {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge-index {
+      background: #f3e8ff;
+      color: #6b21a8;
+    }
+
+    .badge-asli {
+      background: #fecaca;
+      color: #991b1b;
+    }
+
+    .combinations {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .combination {
+      padding: 12px;
+      text-align: center;
+      border-radius: 8px;
+      background: #0f172a;
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    .combination-asli {
+      background: #dc2626;
+      border: 2px solid #991b1b;
+    }
+
+    .count {
+      margin-top: 12px;
+      font-weight: bold;
+      color: #2563eb;
+    }
+
+    .copy-button {
+      background: #059669;
+      margin-top: 15px;
+    }
+
+    .copy-button:hover {
+      background: #047857;
+    }
+
+    details {
+      margin-top: 20px;
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+
+<script>
+  atOptions = {
+    'key' : '40f8672cd6132eaa81353a2b71f6d39a',
+    'format' : 'iframe',
+    'height' : 160,
+    'width' : 300,
+    'params' : {}
+  };
+</script>
+<script src="https://crowdsynonym.com/40f8672cd6132eaa81353a2b71f6d39a/invoke.js"></script>
+
+  <div class="container">
+    <h1>Generator Angka 2D IDX-MB-ML</h1>
+
+    <div class="info">
+      Masukkan angka 2 digit, contoh: <b>27</b> atau beberapa angka dipisahkan koma,
+      contoh: <b>27, 45, 89</b>.
+    </div>
+
+    <div class="form-group">
+      <label for="inputAngka">Input Angka 2D</label>
+      <textarea id="inputAngka" placeholder="Contoh: 27, 45, 89"></textarea>
+    </div>
+
+    <button onclick="prosesAngka()">Proses Angka</button>
+    <button class="button-reset" onclick="resetForm()">Reset</button>
+
+    <div id="pesanError" class="error"></div>
+    <div id="hasil" class="result-box"></div>
+
+    <details>
+      <summary>Melihat tabel mapping</summary>
+
+      <div class="result-section">
+        <h3>Mapping Indeks</h3>
+        <div id="tabelIndex"></div>
+      </div>
+
+      <div class="result-section">
+        <h3>Mapping Mistik Lama</h3>
+        <div id="tabelLama"></div>
+      </div>
+
+      <div class="result-section">
+        <h3>Mapping Mistik Baru</h3>
+        <div id="tabelBaru"></div>
+      </div>
+    </details>
+  </div>
+
+  <script>
+    /*
+      Mapping indeks:
+      0=5, 1=6, 2=7, 3=8, 4=9
+    */
+
+    const mappingIndex = {
+      0: 5,
+      1: 6,
+      2: 7,
+      3: 8,
+      4: 9,
+      5: 0,
+      6: 1,
+      7: 2,
+      8: 3,
+      9: 4
+    };
+
+    /*
+      Mapping mistik lama
+    */
+
+    const mappingLama = {
+      0: 1,
+      1: 0,
+      2: 5,
+      3: 8,
+      4: 7,
+      5: 2,
+      6: 9,
+      7: 4,
+      8: 3,
+      9: 6
+    };
+
+    /*
+      Mapping mistik baru
+    */
+
+    const mappingBaru = {
+      0: 8,
+      1: 7,
+      2: 6,
+      3: 9,
+      4: 5,
+      5: 4,
+      6: 2,
+      7: 1,
+      8: 0,
+      9: 3
+    };
+
+    function prosesAngka() {
+      const input = document.getElementById("inputAngka").value.trim();
+      const hasilElement = document.getElementById("hasil");
+      const pesanError = document.getElementById("pesanError");
+
+      hasilElement.innerHTML = "";
+      pesanError.textContent = "";
+
+      if (!input) {
+        pesanError.textContent = "Silakan masukkan angka 2D.";
+        return;
+      }
+
+      // Memisahkan input berdasarkan koma, spasi, atau baris baru
+      const daftarInput = input
+        .split(/[,\s]+/)
+        .map(item => item.trim())
+        .filter(item => item !== "");
+
+      const inputValid = [];
+
+      for (const angka of daftarInput) {
+        if (!/^\d{2}$/.test(angka)) {
+          pesanError.textContent =
+            `Input "${angka}" tidak valid. Masukkan angka tepat 2 digit.`;
+          return;
+        }
+
+        inputValid.push(angka);
+      }
+
+      let semuaHasil = [];
+
+      inputValid.forEach(angka => {
+        const digitPertama = angka[0];
+        const digitKedua = angka[1];
+
+        const hasilDigitPertama = prosesDigit(digitPertama);
+        const hasilDigitKedua = prosesDigit(digitKedua);
+
+        // MENAMBAHKAN DIGIT ASLI KE DALAM DAFTAR
+        const semuaDigitPertama = [digitPertama, ...hasilDigitPertama.semua];
+        const semuaDigitKedua = [digitKedua, ...hasilDigitKedua.semua];
+
+        const kombinasi = buatKombinasi(
+          semuaDigitPertama,
+          semuaDigitKedua
+        );
+
+        semuaHasil = semuaHasil.concat(kombinasi);
+
+        // Menandai kombinasi yang merupakan angka asli
+        const kombinasiDenganTanda = kombinasi.map(item => {
+          const isAsli = item === angka;
+          return { value: item, isAsli };
+        });
+
+        const bagianHasil = document.createElement("div");
+        bagianHasil.className = "result-section";
+
+        bagianHasil.innerHTML = `
+          <h3>Input: ${angka}</h3>
+
+          <div class="digit-result">
+            <b>Digit pertama (${digitPertama})</b><br>
+            <span class="badge badge-asli">
+              Asli: ${digitPertama}
+            </span>
+            <span class="badge badge-index">
+              Indeks: ${hasilDigitPertama.index}
+            </span>
+            <span class="badge badge-lama">
+              Mistik Lama: ${hasilDigitPertama.lama}
+            </span>
+            <span class="badge badge-baru">
+              Mistik Baru: ${hasilDigitPertama.baru}
+            </span>
+          </div>
+
+          <div class="digit-result">
+            <b>Digit kedua (${digitKedua})</b><br>
+            <span class="badge badge-asli">
+              Asli: ${digitKedua}
+            </span>
+            <span class="badge badge-index">
+              Indeks: ${hasilDigitKedua.index}
+            </span>
+            <span class="badge badge-lama">
+              Mistik Lama: ${hasilDigitKedua.lama}
+            </span>
+            <span class="badge badge-baru">
+              Mistik Baru: ${hasilDigitKedua.baru}
+            </span>
+          </div>
+
+          <h3>Semua Kombinasi</h3>
+          <div class="combinations">
+            ${kombinasiDenganTanda.map(item => `
+              <div class="combination ${item.isAsli ? 'combination-asli' : ''}">${item.value}</div>
+            `).join("")}
+          </div>
+
+          <div class="count">
+            Jumlah kombinasi: ${kombinasi.length}
+          </div>
+        `;
+
+        hasilElement.appendChild(bagianHasil);
+      });
+
+      // Menghilangkan hasil yang sama dari seluruh input
+      const hasilUnik = [...new Set(semuaHasil)];
+
+      const totalSection = document.createElement("div");
+      totalSection.className = "result-section";
+
+      totalSection.innerHTML = `
+        <h3>Gabungan Semua Hasil Unik</h3>
+
+        <div class="combinations">
+          ${hasilUnik.map(item => `
+            <div class="combination">${item}</div>
+          `).join("")}
+        </div>
+
+        <div class="count">
+          Total hasil unik: ${hasilUnik.length}
+        </div>
+
+        <button class="copy-button" onclick="salinHasil()">
+          Salin Semua Hasil
+        </button>
+      `;
+
+      hasilElement.appendChild(totalSection);
+
+      // Menyimpan hasil untuk tombol salin
+      window.hasilUntukDisalin = hasilUnik.join(", ");
+    }
+
+    function prosesDigit(digit) {
+      const angka = Number(digit);
+
+      const hasilIndex = mappingIndex[angka];
+      const hasilLama = mappingLama[angka];
+      const hasilBaru = mappingBaru[angka];
+
+      return {
+        index: hasilIndex,
+        lama: hasilLama,
+        baru: hasilBaru,
+
+        // Semua hasil unik untuk digit tersebut
+        semua: [...new Set([
+          String(hasilIndex),
+          String(hasilLama),
+          String(hasilBaru)
+        ])]
+      };
+    }
+
+    function buatKombinasi(daftarPertama, daftarKedua) {
+      const hasil = [];
+
+      daftarPertama.forEach(angkaPertama => {
+        daftarKedua.forEach(angkaKedua => {
+          hasil.push(angkaPertama + angkaKedua);
+        });
+      });
+
+      return [...new Set(hasil)];
+    }
+
+    function salinHasil() {
+      if (!window.hasilUntukDisalin) {
+        return;
+      }
+
+      navigator.clipboard.writeText(window.hasilUntukDisalin)
+        .then(() => {
+          alert("Semua hasil berhasil disalin.");
+        })
+        .catch(() => {
+          alert("Gagal menyalin hasil.");
+        });
+    }
+
+    function resetForm() {
+      document.getElementById("inputAngka").value = "";
+      document.getElementById("hasil").innerHTML = "";
+      document.getElementById("pesanError").textContent = "";
+    }
+
+    function buatTabel(mapping, elementId) {
+      const element = document.getElementById(elementId);
+
+      element.innerHTML = Object.entries(mapping)
+        .map(([key, value]) => `
+          <span class="badge">${key} = ${value}</span>
+        `)
+        .join("");
+    }
+
+    // Menampilkan tabel mapping saat halaman dibuka
+    buatTabel(mappingIndex, "tabelIndex");
+    buatTabel(mappingLama, "tabelLama");
+    buatTabel(mappingBaru, "tabelBaru");
+  </script>
+</body>
+</html>
