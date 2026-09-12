@@ -19,6 +19,21 @@
   .result-item .label { margin-top: 8px; font-size: 12px; color: #666; word-break: break-word; }
   .no-result { text-align: center; color: #999; padding: 30px; font-style: italic; grid-column: 1/-1; }
 
+  /* === TAUTAN === */
+  .tautan-generator {
+    text-align: center;
+    margin: 15px 0;
+    font-size: 15px;
+    font-weight: bold;
+  }
+  .tautan-generator a {
+    color: #007bff;
+    text-decoration: none;
+  }
+  .tautan-generator a:hover {
+    text-decoration: underline;
+  }
+
   /* === FOOTER === */
   .footer {
     text-align: center;
@@ -34,21 +49,29 @@
 
 <div class="container">
   <h1>🔍 Pencarian Erek-Erek 2D Bergambar</h1>
-  <p style="text-align:center;color:#666;">
-    Cari angka 2 digit (misal: <b>00</b>) atau kata (misal: <b>penyair</b>, <b>tapir</b>)<br>
-    <small>Bisa juga multi-kata, misal: <b>penyair tapir</b> (hasil gabungan keduanya)</small>
-  </p>
 
   <div class="search-box">
     <input type="text" id="searchInput" placeholder="Masukkan angka atau kata..." autocomplete="off">
     <button onclick="cariData()">Cari</button>
   </div>
 
+  <!-- Tautan ke Generator 2D mb-ml-idx -->
+  <div class="tautan-generator">
+    <a href="https://yadisupri.cloud-ip.cc/tool/cakMistik2D.html" target="_blank" rel="noopener noreferrer">
+      Kunjungi juga Generator 2D mb-ml-idx
+    </a>
+  </div>
+
+  <p style="text-align:center;color:#666;">
+    Cari angka 2 digit (misal: <b>00</b>) atau kata (misal: <b>penyair</b>, <b>tapir</b>)<br>
+    <small>Bisa juga multi-kata, misal: <b>penyair tapir</b> (hasil gabungan keduanya)</small>
+  </p>
+
   <div id="hasil" class="result-grid"></div>
 
   <!-- === FOOTER === -->
   <div class="footer">
-    Hak Cipta: yadisupri85©
+    Hak Cipta: yadisupri ©
   </div>
 </div>
 
