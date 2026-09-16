@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Builder vs Build dari Sumber: Kenapa opkg Jadi Penentu</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.7;
+            color: #24292e;
+            max-width: 820px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            background: #ffffff;
+        }
+        h1 {
+            font-size: 2rem;
+            border-bottom: 1px solid #eaecef;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        h2 {
+            font-size: 1.5rem;
+            margin-top: 2rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid #eaecef;
+        }
+        h3 {
+            font-size: 1.2rem;
+            margin-top: 1.5rem;
+        }
+        p {
+            margin: 1rem 0;
+        }
+        code {
+            background: #f6f8fa;
+            padding: 0.2em 0.4em;
+            border-radius: 3px;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background: #f6f8fa;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            border: 1px solid #e1e4e8;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+            font-size: 0.85em;
+            line-height: 1.5;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1.5rem 0;
+            font-size: 0.95em;
+        }
+        th, td {
+            border: 1px solid #dfe2e5;
+            padding: 0.6rem 0.9rem;
+            text-align: left;
+        }
+        th {
+            background: #f6f8fa;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background: #fafbfc;
+        }
+        blockquote {
+            border-left: 4px solid #dfe2e5;
+            padding-left: 1rem;
+            color: #6a737d;
+            margin: 1rem 0;
+        }
+        ul, ol {
+            padding-left: 1.5rem;
+            margin: 1rem 0;
+        }
+        li {
+            margin: 0.4rem 0;
+        }
+        strong {
+            font-weight: 600;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #eaecef;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Image Builder vs Build dari Sumber: Kenapa <code>opkg</code> Jadi Penentu</h1>
+
+    <h2>Pengalaman Saya</h2>
+
+    <p>Saya punya router <strong>TP-Link MR3420 v2</strong> dengan <strong>Flash 8MB</strong>. Saya ingin firmware OpenWrt 18.06.9 yang lengkap: LuCI, driver USB, driver modem 3G/4G, dan semua paket yang saya butuhkan.</p>
+
+    <p>Saya coba dua pendekatan:</p>
+    <ol>
+        <li><strong>Image Builder resmi</strong> (target <code>ar71xx/tiny</code>, profile <code>tl-mr3420-v2</code>)</li>
+        <li><strong>Build dari sumber</strong> (buildroot)</li>
+    </ol>
+
+    <p>Hasilnya menarik:</p>
+    <ul>
+        <li><strong>Image Builder</strong> → gagal karena firmware kelebihan <strong>148.123 byte</strong> dari kapasitas Flash</li>
+        <li><strong>Build dari sumber</strong> → <strong>berhasil</strong>, firmware jalan</li>
+        <li>Tapi setelah firmware jalan, <strong><code>opkg</code> dari repo resmi sering error</strong></li>
+    </ul>
+
+    <p>Kenapa bisa begitu? Ternyata bukan soal firmware-nya, tapi soal <strong>kernel hash</strong>.</p>
+
+    <h2>Kunci Masalahnya: Kernel Hash</h2>
+
+    <p>Di repo OpenWrt, kernel module (<code>kmod-*</code>) disimpan dalam folder dengan nama seperti ini:</p>
+
+    <pre><code>.../targets/ar71xx/tiny/kmods/4.9.243-1-db2d5425c674d1648616e3c37760e80e/</code></pre>
+
+    <p>Bagian <code>db2d5425c674d1648616e3c37760e80e</code> itu adalah <strong>hash dari konfigurasi kernel</strong> yang dipakai buildbot resmi. Setiap perubahan kecil di <code>.config</code> kernel akan menghasilkan hash berbeda.</p>
+
+    <p><code>opkg</code> memverifikasi ini lewat metadata:</p>
+
+    <pre><code>Kernel-Version: 4.9.243-1-db2d5425c674d1648616e3c37760e80e</code></pre>
+
+    <p>Kalau <code>uname -r</code> di router Anda <strong>tidak persis sama</strong> dengan string itu, <code>opkg</code> akan menolak dengan error:</p>
+
+    <pre><code>Packages for kmod-xxx found, but incompatible with the architectures configured</code></pre>
+
+    <h2>Mengapa Image Builder Harus Tetap Dipakai</h2>
+
+    <h3>1. Kernel Hash Sama dengan Repo Resmi</h3>
+
+    <p>Image Builder resmi <strong>dibangun dari buildbot yang sama</strong> dengan repo paket. Artinya:</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th></th>
+                <th>Image Builder</th>
+                <th>Build dari Sumber</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Kernel hash</td>
+                <td><code>db2d5425c674d1648616e3c37760e80e</code></td>
+                <td>Hash berbeda</td>
+            </tr>
+            <tr>
+                <td>Kmod dari repo</td>
+                <td>✅ Cocok</td>
+                <td>❌ Tidak cocok</td>
+            </tr>
+            <tr>
+                <td><code>opkg update</code></td>
+                <td>✅ Jalan</td>
+                <td>❌ Sering gagal</td>
+            </tr>
+            <tr>
+                <td><code>opkg install kmod-*</code></td>
+                <td>✅ Bisa</td>
+                <td>❌ Tidak bisa</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>Jadi kalau Anda mau bisa <code>opkg install</code> dari repo resmi, <strong>Image Builder adalah satu-satunya cara</strong>.</p>
+
+    <h3>2. <code>opkg</code> Adalah Nyawa OpenWrt</h3>
+
+    <p>OpenWrt tanpa <code>opkg</code> seperti Android tanpa Play Store. Anda tidak bisa:</p>
+    <ul>
+        <li>Install paket baru</li>
+        <li>Update keamanan</li>
+        <li>Tambah fitur tanpa build ulang</li>
+        <li>Install driver USB/modem yang tidak masuk firmware awal</li>
+    </ul>
+
+    <p>Kalau <code>opkg</code> mati, setiap perubahan sekecil apapun berarti <strong>build ulang firmware</strong> — dan itu <strong>1-2 jam</strong> per build.</p>
+
+    <h3>3. Image Builder Dirancang untuk Ini</h3>
+
+    <p>Image Builder secara desain:</p>
+    <ul>
+        <li><strong>Menyertakan kernel image yang sudah jadi</strong> (bukan source)</li>
+        <li><strong>Mengambil kmod dari feed online</strong> yang sudah cocok</li>
+        <li><strong>Tidak membangun apa pun dari source</strong></li>
+    </ul>
+
+    <p>Commit OpenWrt bahkan secara eksplisit menyebutkan:</p>
+
+    <blockquote>
+        "We don't ship the kernel sources, so using the base git as a feed will fail when trying to build kernel modules with separate install steps. Instead of trying to fixup the install steps, let's just <strong>skip building kernel modules altogether</strong>."
+    </blockquote>
+
+    <p>Artinya: Image Builder <strong>sengaja tidak build kmod</strong> karena memang tidak punya kernel source. Kmod yang dipakai adalah yang sudah jadi dari repo.</p>
+
+    <h2>Mengapa Build dari Sumber Berisiko <code>opkg</code> Tidak Cocok</h2>
+
+    <h3>1. Kernel Hash Berbeda</h3>
+
+    <p>Build dari sumber menghasilkan kernel dengan hash yang <strong>berbeda</strong> dari buildbot resmi. Penyebabnya:</p>
+    <ul>
+        <li>Konfigurasi kernel yang berbeda</li>
+        <li>Versi toolchain yang berbeda</li>
+        <li>Patch yang berbeda</li>
+        <li>Environment build yang berbeda</li>
+    </ul>
+
+    <p>Hash ini sangat sensitif — perubahan sekecil apapun di <code>.config</code> kernel akan mengubahnya.</p>
+
+    <h3>2. Kmod dari Repo Tidak Bisa Dipakai</h3>
+
+    <p>Karena hash beda, kmod dari repo <strong>tidak akan pernah cocok</strong> dengan kernel Anda. Anda harus:</p>
+    <ul>
+        <li><strong>Build kmod sendiri</strong> dari source yang sama</li>
+        <li>Atau <strong>selesaikan semua di buildroot</strong> — jangan pernah <code>opkg install kmod-*</code></li>
+    </ul>
+
+    <h3>3. Konsekuensinya</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Ingin</th>
+                <th>Cara</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>opkg</code> jalan</td>
+                <td>Build dari sumber → build kmod sendiri → buat repo lokal sendiri</td>
+            </tr>
+            <tr>
+                <td>Cepat &amp; simpel</td>
+                <td>Image Builder resmi</td>
+            </tr>
+            <tr>
+                <td>Kontrol penuh + <code>opkg</code> jalan</td>
+                <td>Kompleks, perlu maintain repo sendiri</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Trade-Off yang Harus Dipilih</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Aspek</th>
+                <th>Image Builder</th>
+                <th>Build dari Sumber</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Kontrol paket</td>
+                <td>Terbatas</td>
+                <td>Penuh</td>
+            </tr>
+            <tr>
+                <td>Ukuran firmware</td>
+                <td>Terbatas (4MB target tiny sering gagal)</td>
+                <td>Bisa dioptimasi</td>
+            </tr>
+            <tr>
+                <td>Kernel hash</td>
+                <td>Sama dengan repo</td>
+                <td>Berbeda</td>
+            </tr>
+            <tr>
+                <td><code>opkg</code> dari repo resmi</td>
+                <td>✅ Jalan</td>
+                <td>❌ Gagal</td>
+            </tr>
+            <tr>
+                <td>Update paket</td>
+                <td>Mudah via <code>opkg</code></td>
+                <td>Harus build ulang</td>
+            </tr>
+            <tr>
+                <td>Waktu build</td>
+                <td>~10 menit</td>
+                <td>~1-2 jam</td>
+            </tr>
+            <tr>
+                <td>Reproducibility</td>
+                <td>Tinggi</td>
+                <td>Tergantung environment</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Kesimpulan</h2>
+
+    <p><strong>Kalau Anda ingin tetap bisa <code>opkg update</code> dan <code>opkg install</code> dari repo resmi, pakai Image Builder.</strong> Itu satu-satunya cara yang dijamin berhasil karena kernel hash-nya sama dengan repo.</p>
+
+    <p><strong>Kalau Anda build dari sumber, terima kenyataan bahwa <code>opkg</code> dari repo resmi tidak akan cocok.</strong> Anda harus build semua paket yang Anda butuhkan langsung ke dalam firmware, dan tidak bisa install paket baru setelahnya.</p>
+
+    <p>Untuk MR3420 v2 dengan Flash 8MB, pilihan terbaik adalah:</p>
+    <ol>
+        <li><strong>Image Builder target <code>generic</code></strong> — sudah menyertakan LuCI, banyak ruang, kernel hash sama dengan repo</li>
+        <li><strong>Build dari sumber</strong> — kalau Image Builder gagal karena ukuran, tapi terima konsekuensi <code>opkg</code> mati</li>
+    </ol>
+
+    <p><strong>Jangan campur keduanya.</strong> Build dari sumber + <code>opkg</code> dari repo resmi = kombinasi yang paling sering error.</p>
+
+</body>
+</html>
