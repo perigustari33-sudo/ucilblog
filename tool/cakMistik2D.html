@@ -438,9 +438,9 @@
           </div>
 
           <div class="count">
-            Jumlah bet dari kombinasi: ${kombinasi.length}
+            Jumlah bet dari kombinasi: ${kombinasi.length} baris.
           </div>
-
+<br/>
           <h3>Hasil dari angka asli ${angka}: -1 & +1</h3>
           <div class="combinations">
             ${kombinasiLuar.map(item => `
@@ -449,7 +449,7 @@
           </div>
 
           <div class="count">
-            Jumlah bet untuk -1&+1: ${kombinasiLuar.length}
+            Jumlah bet dari -1&+1: ${kombinasiLuar.length} baris.
           </div>
         `;
 
@@ -473,7 +473,7 @@
         </div>
 
         <div class="count">
-          Total hasil unik: ${hasilUnik.length}
+          Total hasil unik: ${hasilUnik.length} baris.
         </div>
 
         <h3>Gabungan Di Luar Kombinasi (-1 & +1 dari angka asli)</h3>
@@ -485,7 +485,7 @@
         </div>
 
         <div class="count">
-          Total di luar kombinasi unik: ${hasilLuarUnik.length}
+          Total di +1 dan -1: ${hasilLuarUnik.length} baris.
         </div>
 
         <button class="copy-button" onclick="salinHasil()">
