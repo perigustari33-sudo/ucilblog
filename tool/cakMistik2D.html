@@ -177,6 +177,11 @@
       border: 2px solid #991b1b;
     }
 
+    .combination-luar {
+      background: #7c3aed;
+      border: 2px solid #5b21b6;
+    }
+
     .count {
       margin-top: 12px;
       font-weight: bold;
@@ -357,6 +362,7 @@
       }
 
       let semuaHasil = [];
+      let semuaHasilLuar = [];
 
       inputValid.forEach(angka => {
         const digitPertama = angka[0];
@@ -375,6 +381,10 @@
         );
 
         semuaHasil = semuaHasil.concat(kombinasi);
+
+        // Membuat kombinasi luar HANYA dari angka asli/awal (kurang 1 dan tambah 1)
+        const kombinasiLuar = buatKombinasiLuarDariAsli(angka);
+        semuaHasilLuar = semuaHasilLuar.concat(kombinasiLuar);
 
         // Menandai kombinasi yang merupakan angka asli
         const kombinasiDenganTanda = kombinasi.map(item => {
@@ -428,7 +438,18 @@
           </div>
 
           <div class="count">
-            Jumlah kombinasi: ${kombinasi.length}
+            Jumlah bet dari kombinasi: ${kombinasi.length}
+          </div>
+
+          <h3>Hasil dari angka asli ${angka}: -1 & +1</h3>
+          <div class="combinations">
+            ${kombinasiLuar.map(item => `
+              <div class="combination combination-luar">${item}</div>
+            `).join("")}
+          </div>
+
+          <div class="count">
+            Jumlah bet untuk -1&+1: ${kombinasiLuar.length}
           </div>
         `;
 
@@ -437,6 +458,7 @@
 
       // Menghilangkan hasil yang sama dari seluruh input
       const hasilUnik = [...new Set(semuaHasil)];
+      const hasilLuarUnik = [...new Set(semuaHasilLuar)];
 
       const totalSection = document.createElement("div");
       totalSection.className = "result-section";
@@ -454,6 +476,18 @@
           Total hasil unik: ${hasilUnik.length}
         </div>
 
+        <h3>Gabungan Di Luar Kombinasi (-1 & +1 dari angka asli)</h3>
+
+        <div class="combinations">
+          ${hasilLuarUnik.map(item => `
+            <div class="combination combination-luar">${item}</div>
+          `).join("")}
+        </div>
+
+        <div class="count">
+          Total di luar kombinasi unik: ${hasilLuarUnik.length}
+        </div>
+
         <button class="copy-button" onclick="salinHasil()">
           Salin Semua Hasil
         </button>
@@ -461,8 +495,8 @@
 
       hasilElement.appendChild(totalSection);
 
-      // Menyimpan hasil untuk tombol salin
-      window.hasilUntukDisalin = hasilUnik.join(", ");
+      // Menyimpan hasil untuk tombol salin (kombinasi + luar kombinasi)
+      window.hasilUntukDisalin = [...hasilUnik, ...hasilLuarUnik].join(", ");
     }
 
     function prosesDigit(digit) {
@@ -496,6 +530,23 @@
       });
 
       return [...new Set(hasil)];
+    }
+
+    // Fungsi baru: membuat kombinasi luar HANYA dari angka asli/awal
+    // Contoh input "85" -> menghasilkan "84" dan "86"
+    function buatKombinasiLuarDariAsli(angka) {
+      const nilai = parseInt(angka, 10);
+
+      let kurang = nilai - 1;
+      if (kurang < 0) kurang = 99; // wrap-around
+
+      let tambah = nilai + 1;
+      if (tambah > 99) tambah = 0; // wrap-around
+
+      return [
+        String(kurang).padStart(2, "0"),
+        String(tambah).padStart(2, "0")
+      ];
     }
 
     function salinHasil() {
