@@ -2,7 +2,7 @@ name: scheduled-update
 
 on:
   schedule:
-    - cron: "0 */6 * * *"
+    - cron: "0 0 */3 * *"
   workflow_dispatch:
 
 jobs:
@@ -20,8 +20,12 @@ jobs:
           API_KEY: ${{ secrets.POPADS_API_KEY }}
         run: |
           echo "::add-mask::$API_KEY"
-          # === ISI SENDIRI BAGIAN CURL DI SINI ===
           curl -sS "https://www.popads.net/api/website_code?key=$API_KEY&website_id=4140059&tl=auto&aab=1&of=1" -o output.raw.js
+
+          if ! grep -q "function()" output.raw.js; then
+            echo "Response tidak valid"
+            exit 1
+          fi
 
       - name: Strip script and CDATA wrapper
         run: |
