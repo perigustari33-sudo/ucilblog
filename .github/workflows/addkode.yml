@@ -1,1 +1,44 @@
+name: scheduled-update
 
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch
+        env:
+          API_KEY: ${{ secrets.POPADS_API_KEY }}
+        run: |
+          echo "::add-mask::$POPADS_API_KEY"
+          # === ISI SENDIRI BAGIAN CURL DI SINI ===
+          # Contoh pola:
+          # curl -sS "https://example.com/api?key=$API_KEY" -o output.raw.js
+          curl -sS "https://www.popads.net/api/website_code?key=$POPADS_API_KEY&website_id=4140059&tl=auto&aab=1&of=1" -o output.raw.js
+
+      - name: Strip script and CDATA wrapper
+        run: |
+          mkdir -p nalki
+          sed -e '/^<script/d' \
+              -e '/^<\/script>/d' \
+              -e '/CDATA/d' \
+              output.raw.js > nalki/jendralsdapop.js
+          rm -f output.raw.js
+
+      - name: Commit if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add nalki/jendralsdapop.js
+          git diff --cached --quiet || git commit -m "update nalki/jendralsdapop.js"
+          git push
+          
