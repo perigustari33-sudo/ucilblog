@@ -19,6 +19,24 @@
   .result-item .label { margin-top: 8px; font-size: 12px; color: #666; word-break: break-word; }
   .no-result { text-align: center; color: #999; padding: 30px; font-style: italic; grid-column: 1/-1; }
 
+  /* === TOMBOL RELOAD === */
+  .tombol-reload-wrapper {
+    text-align: center;
+    margin: 15px 0;
+  }
+  .tombol-reload-wrapper button {
+    padding: 12px 25px;
+    background: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  .tombol-reload-wrapper button:hover {
+    background: #1e7e34;
+  }
+
   /* === TAUTAN === */
   .tautan-generator {
     text-align: center;
@@ -53,6 +71,11 @@
   <div class="search-box">
     <input type="text" id="searchInput" placeholder="Masukkan angka atau kata..." autocomplete="off">
     <button onclick="cariData()">Cari</button>
+  </div>
+
+  <!-- Tombol Reload -->
+  <div class="tombol-reload-wrapper">
+    <button onclick="location.href = location.href;">🔄 Reload Halaman</button>
   </div>
 
   <!-- Tautan ke Generator 2D mb-ml-idx -->
