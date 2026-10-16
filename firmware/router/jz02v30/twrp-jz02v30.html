@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cara Pasang TWRP 2.8.5.0 untuk JZ02V30 MSM8916</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    line-height: 1.7;
+    color: #2d2d2d;
+    background: #f7f9fc;
+    margin: 0;
+    padding: 0;
+  }
+  .container {
+    max-width: 780px;
+    margin: 30px auto;
+    background: #ffffff;
+    padding: 30px 35px;
+    border-radius: 10px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+  }
+  h1 {
+    font-size: 1.8em;
+    color: #1a3c6e;
+    border-bottom: 3px solid #1a3c6e;
+    padding-bottom: 10px;
+    margin-top: 0;
+  }
+  h2 {
+    font-size: 1.3em;
+    color: #1a3c6e;
+    margin-top: 30px;
+    border-left: 5px solid #1a3c6e;
+    padding-left: 12px;
+  }
+  h3 {
+    font-size: 1.1em;
+    color: #333;
+    margin-top: 22px;
+  }
+  p {
+    margin: 12px 0;
+  }
+  a {
+    color: #0b63c4;
+    text-decoration: none;
+    word-break: break-word;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  .warning-box {
+    background: #fff3cd;
+    border-left: 5px solid #ffc107;
+    padding: 15px 18px;
+    border-radius: 6px;
+    margin: 20px 0;
+    font-size: 0.95em;
+  }
+  .info-box {
+    background: #e8f4fd;
+    border-left: 5px solid #2196f3;
+    padding: 15px 18px;
+    border-radius: 6px;
+    margin: 20px 0;
+  }
+  .code-block {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-family: 'Consolas', 'Courier New', monospace;
+    padding: 14px 18px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 14px 0;
+    font-size: 0.92em;
+    line-height: 1.5;
+  }
+  .code-block code {
+    color: #d4d4d4;
+  }
+  ol, ul {
+    padding-left: 22px;
+  }
+  li {
+    margin: 8px 0;
+  }
+  .step {
+    background: #f0f6ff;
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 18px 0;
+    border: 1px solid #d6e4f5;
+  }
+  .step strong {
+    color: #1a3c6e;
+  }
+  .btn-download {
+    display: inline-block;
+    background: #1a3c6e;
+    color: #ffffff !important;
+    padding: 10px 22px;
+    border-radius: 6px;
+    text-decoration: none !important;
+    font-weight: 600;
+    margin: 10px 0;
+    transition: background 0.2s;
+  }
+  .btn-download:hover {
+    background: #0f2a4d;
+    text-decoration: none !important;
+  }
+  .disclaimer {
+    background: #fdecea;
+    border-left: 5px solid #e53935;
+    padding: 15px 18px;
+    border-radius: 6px;
+    margin: 25px 0 10px;
+    font-size: 0.95em;
+  }
+  .footer-note {
+    text-align: center;
+    margin-top: 35px;
+    padding-top: 18px;
+    border-top: 1px dashed #ccc;
+    color: #666;
+    font-size: 0.9em;
+  }
+  code {
+    background: #eef1f5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', monospace;
+    font-size: 0.9em;
+    color: #c7254e;
+  }
+  .code-block code {
+    background: transparent;
+    color: #d4d4d4;
+    padding: 0;
+  }
+  hr {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 30px 0;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>Cara Pasang TWRP 2.8.5.0 untuk JZ02V30 MSM8916</h1>
+
+  <p>Assalamu Alaikum....<br/>Bagi kamu yang punya perangkat <strong>JZ02V30</strong> berbasis chipset <strong>MSM8916</strong>, artikel ini akan membahas cara memasang <strong>TWRP 2.8.5.0</strong> di perangkat tersebut. Ada beberapa skenario yang perlu dipahami, terutama apakah perangkatmu sudah <em>root</em> atau belum.</p>
+
+  <div class="info-box">
+    <strong>Catatan penting:</strong> Untuk JZ02V30 yang <strong>belum root</strong>, flash recovery <strong>harus via EDL/QDL</strong>. Jika flash via fastboot, ada pengguna yang menjelaskan bahwa fastboot stok di JZ02V30 ini memang tidak berfungsi sebagaimana mestinya — penjelasan lengkapnya bisa dibaca di <a href="https://github.com/ardiesan/JZ02_V30/blob/main/_posts/2025-09-18.md" target="_blank" rel="noopener">referensi aboot UZ801 di GitHub</a>.
+  </div>
+
+  <h2>Kondisi Awal Perangkat</h2>
+
+  <h3>1. Belum Root (Tanpa PC)</h3>
+  <p>Jika kamu ingin melakukan root terlebih dahulu tanpa PC, bisa membaca panduan berikut:</p>
+  <p>
+    👉 <a href="https://jendraljacktrik.blogspot.com/2026/10/cara-root-h760r-msm8916-versi-board.html?m=1" target="_blank" rel="noopener">Cara Root H760R MSM8916 Versi Board JZ02_V30</a>
+  </p>
+  <p>Atau jika ingin root dengan bantuan PC, silakan cari artikel lain di internet yang membahas root MSM8916 via PC.</p>
+
+  <h3>2. Belum Root (Via Fastboot)</h3>
+  <p>Untuk yang belum root, flash recovery via fastboot <strong>tidak akan berhasil</strong> karena fastboot stok pada JZ02V30 tidak berfungsi semestinya. Solusi fastboot yang berhasil mengharuskan <em>aboot</em> diflash ke stok aboot milik <strong>UZ801</strong>, yang pada akhirnya tetap harus menggunakan <strong>Program EDL/QDL</strong>. Detail teknis dan pengalaman pengguna terkait hal ini dapat dilihat di <a href="https://github.com/ardiesan/JZ02_V30/blob/main/_posts/2025-09-18.md" target="_blank" rel="noopener">referensi aboot UZ801 (ardiesan/JZ02_V30)</a>.</p>
+
+  <h3>3. Sudah Root</h3>
+  <p>Jika JZ02V30 kamu <strong>sudah root</strong>, kamu bisa langsung mengikuti langkah-langkah di bawah ini untuk memasang TWRP 2.8.5.0.</p>
+
+  <hr>
+
+  <h2>Langkah Pemasangan TWRP 2.8.5.0 (Sudah Root)</h2>
+
+  <div class="step">
+    <p><strong>Langkah 1 — Unduh TWRP</strong></p>
+    <p>Unduh file TWRP 2.8.5.0 untuk JZ02V30 melalui tautan berikut:</p>
+    <p>
+      <a class="btn-download" href="https://yadisupri.cloud-ip.cc/firmware/router/jz02v30/jz02v30-twrp2850.img.zip" target="_blank" rel="noopener">⬇ Unduh Twrp2850-jz02v30</a>
+    </p>
+    <p>Setelah diunduh, <strong>ekstrak</strong> file zip tersebut untuk mendapatkan file <code>jz02v30-twrp2850.img</code>.</p>
+  </div>
+
+  <div class="step">
+    <p><strong>Langkah 2 — Masuk ke ADB Shell</strong></p>
+    <p>Masuk ke ADB shell menggunakan PC, atau gunakan <strong>ADBify</strong> jika tanpa PC.</p>
+    <p>Jalankan perintah berikut untuk memflash recovery:</p>
+
+    <div class="code-block">
+<code>dd if=/sdcard/jz02v30-twrp2850.img of=/dev/block/mmcblk0p26</code>
+    </div>
+
+    <p>Atau bisa juga menggunakan perintah alternatif berikut:</p>
+
+    <div class="code-block">
+<code>cat /sdcard/jz02v30-twrp2850.img &gt; /dev/block/mmcblk0p26</code>
+    </div>
+
+    <p>Setelah itu, jalankan perintah <code>sync</code> untuk memastikan semua data tertulis dengan benar, lalu <strong>reboot recovery</strong>.</p>
+  </div>
+
+  <div class="step">
+    <p><strong>Langkah 3 — Install ZIP via TWRP (Opsional)</strong></p>
+    <p>Jika kamu ingin menginstall file zip (misalnya <code>mysu.zip</code> untuk root), gunakan perintah berikut di TWRP:</p>
+
+    <div class="code-block">
+<code>twrp install /sdcard/mysu.zip</code>
+    </div>
+  </div>
+
+  <hr>
+
+  <h2>Ringkasan Perintah</h2>
+  <div class="code-block">
+<code># Flash TWRP via ADB Shell
+dd if=/sdcard/jz02v30-twrp2850.img of=/dev/block/mmcblk0p26
+
+# Alternatif
+cat /sdcard/jz02v30-twrp2850.img &gt; /dev/block/mmcblk0p26
+
+# Sync dan reboot
+sync
+reboot recovery
+
+# Install zip via TWRP
+twrp install /sdcard/myChainfiresu.zip</code>
+  </div>
+
+  <div class="disclaimer">
+    <strong>⚠ Disclaimer:</strong> Jika terjadi kerusakan pada perangkat, kami <strong>tidak bertanggung jawab</strong>. Anda sudah tahu risikonya, kan? Lakukan dengan hati-hati dan pastikan semua langkah dipahami sebelum eksekusi.
+  </div>
+
+  <div class="footer-note">
+    <p>Salam,<br><strong>Jendral Jack</strong></p>
+  </div>
+
+</div>
+</body>
+</html>
