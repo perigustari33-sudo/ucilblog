@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tap Gambar untuk Koordinat</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f0f2f5;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  h1 {
+    font-size: 20px;
+    color: #333;
+    margin: 0 0 16px 0;
+    text-align: center;
+  }
+
+  .wrapper {
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* ============================
+     INFO KOORDINAT (di atas gambar)
+     ============================ */
+  #info {
+    background: #fff;
+    padding: 14px 18px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    font-family: monospace;
+    font-size: 15px;
+    line-height: 1.8;
+    min-height: 60px;
+    border-left: 4px solid #007bff;
+    position: relative;
+  }
+  #info .placeholder {
+    color: #999;
+    font-style: italic;
+  }
+  #info .label { color: #666; }
+  #info .value { color: #007bff; font-weight: bold; }
+
+  /* Tombol copy utama (kanan atas info) */
+  #btnCopy {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.2s;
+    display: none;
+  }
+  #btnCopy:hover { background: #0056b3; }
+  #btnCopy:active { transform: scale(0.96); }
+  #btnCopy.copied { background: #28a745; }
+
+  /* ============================
+     CONTAINER GAMBAR
+     ============================ */
+  #container {
+    position: relative;
+    display: none;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    width: 100%;
+  }
+
+  #gambar {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    cursor: crosshair;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  /* Marker titik tap */
+  .marker {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #ff3b30;
+    border-radius: 50%;
+    background: rgba(255, 59, 48, 0.3);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    animation: pop 0.2s ease-out;
+  }
+  @keyframes pop {
+    from { transform: translate(-50%, -50%) scale(0); }
+    to   { transform: translate(-50%, -50%) scale(1); }
+  }
+
+  /* ============================
+     RIWAYAT KLIK
+     ============================ */
+  #riwayat {
+    font-family: monospace;
+    font-size: 13px;
+    color: #666;
+    max-height: 200px;
+    overflow-y: auto;
+    background: #fff;
+    padding: 12px;
+    border-radius: 8px;
+    display: none;
+    border-left: 4px solid #28a745;
+  }
+  #riwayat strong {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+  }
+
+  .riwayat-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px;
+    border-radius: 4px;
+    background: #f8f9fa;
+    margin-bottom: 4px;
+  }
+  .riwayat-item span {
+    color: #333;
+  }
+  .riwayat-item .btn-copy-item {
+    background: #e9ecef;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    color: #333;
+    transition: background 0.2s;
+  }
+  .riwayat-item .btn-copy-item:hover { background: #dee2e6; }
+  .riwayat-item .btn-copy-item.copied {
+    background: #28a745;
+    color: #fff;
+  }
+
+  /* Toolbar riwayat */
+  .riwayat-toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .riwayat-toolbar button {
+    background: #e9ecef;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    color: #333;
+    transition: background 0.2s;
+  }
+  .riwayat-toolbar button:hover { background: #dee2e6; }
+  .riwayat-toolbar button.copied {
+    background: #28a745;
+    color: #fff;
+  }
+  .riwayat-toolbar button.btn-hapus { color: #dc3545; }
+  .riwayat-toolbar button.btn-hapus:hover { background: #f8d7da; }
+
+  /* Pesan error */
+  #error {
+    display: none;
+    background: #fff;
+    padding: 14px 18px;
+    border-radius: 8px;
+    border-left: 4px solid #dc3545;
+    color: #dc3545;
+    font-family: monospace;
+    font-size: 14px;
+  }
+
+  /* Toast notifikasi */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #333;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 9999;
+  }
+  #toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+
+<h1>📍 Tap Gambar untuk Lihat Koordinat</h1>
+
+<div class="wrapper">
+
+  <!-- 1. INFO KOORDINAT (di atas) -->
+  <div id="info">
+    <span class="placeholder">Memuat gambar...</span>
+    <button id="btnCopy">📋 Copy</button>
+  </div>
+
+  <!-- Pesan error -->
+  <div id="error"></div>
+
+  <!-- 2. CONTAINER GAMBAR -->
+  <div id="container">
+    <img id="gambar" alt="Gambar">
+  </div>
+
+  <!-- 3. RIWAYAT KLIK -->
+  <div id="riwayat"></div>
+
+</div>
+
+<!-- Toast notifikasi -->
+<div id="toast"></div>
+
+<script>
+  /* =========================================================
+     🔧 UBAH URL GAMBAR DI SINI
+     ========================================================= */
+  const URL_GAMBAR = 'http://192.168.1.1/king.png';
+  /* ========================================================= */
+
+  const container  = document.getElementById('container');
+  const gambar     = document.getElementById('gambar');
+  const info       = document.getElementById('info');
+  const riwayat    = document.getElementById('riwayat');
+  const errorBox   = document.getElementById('error');
+  const btnCopy    = document.getElementById('btnCopy');
+  const toast      = document.getElementById('toast');
+
+  let riwayatKlik   = [];
+  let koordinatAktif = null; // koordinat terakhir yang di-tap
+
+  /* ============================
+     1. Load gambar
+     ============================ */
+  gambar.src = URL_GAMBAR;
+
+  gambar.addEventListener('load', () => {
+    container.style.display = 'block';
+    riwayat.style.display = 'block';
+    info.innerHTML = '<span class="placeholder">Tap/klik pada gambar untuk melihat koordinat.</span>';
+    info.appendChild(btnCopy); // tombol copy tetap ada
+  });
+
+  gambar.addEventListener('error', () => {
+    container.style.display = 'none';
+    riwayat.style.display = 'none';
+    info.innerHTML = '<span class="placeholder">Gambar gagal dimuat.</span>';
+    errorBox.style.display = 'block';
+    errorBox.textContent = '❌ Gagal memuat gambar dari URL: ' + URL_GAMBAR;
+  });
+
+  /* ============================
+     2. Handle tap / klik
+     ============================ */
+  gambar.addEventListener('click', handleTap);
+
+  gambar.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    handleTap(e.touches[0]);
+  }, { passive: false });
+
+  function handleTap(e) {
+    const rect = gambar.getBoundingClientRect();
+
+    const xDisplay = e.clientX - rect.left;
+    const yDisplay = e.clientY - rect.top;
+
+    const scaleX = gambar.naturalWidth  / gambar.width;
+    const scaleY = gambar.naturalHeight / gambar.height;
+
+    const xAsli = Math.round(xDisplay * scaleX);
+    const yAsli = Math.round(yDisplay * scaleY);
+
+    koordinatAktif = { x: xAsli, y: yAsli };
+
+    tampilkanMarker(xDisplay, yDisplay);
+
+    info.innerHTML = `
+      <div><span class="label">Resolusi asli :</span>
+           <span class="value">${gambar.naturalWidth} × ${gambar.naturalHeight} px</span></div>
+      <div><span class="label">Koordinat asli :</span>
+           <span class="value">x = ${xAsli} , y = ${yAsli}</span></div>
+    `;
+    info.appendChild(btnCopy);
+    btnCopy.style.display = 'block';
+
+    riwayatKlik.push({ x: xAsli, y: yAsli });
+    renderRiwayat();
+
+    console.log(`Koordinat asli: x=${xAsli}, y=${yAsli}`);
+  }
+
+  /* ============================
+     3. Tampilkan marker
+     ============================ */
+  function tampilkanMarker(x, y) {
+    const markerLama = container.querySelector('.marker');
+    if (markerLama) markerLama.remove();
+
+    const marker = document.createElement('div');
+    marker.className = 'marker';
+    marker.style.left = x + 'px';
+    marker.style.top  = y + 'px';
+    container.appendChild(marker);
+  }
+
+  /* ============================
+     4. Render riwayat klik (dengan tombol copy per item)
+     ============================ */
+  function renderRiwayat() {
+    if (riwayatKlik.length === 0) {
+      riwayat.innerHTML = '';
+      return;
+    }
+
+    let html = `
+      <strong>Riwayat klik (${riwayatKlik.length}):</strong>
+      <div class="riwayat-toolbar">
+        <button id="btnCopySemua">📋 Copy Semua</button>
+        <button id="btnHapusSemua" class="btn-hapus">🗑️ Hapus Semua</button>
+      </div>
+    `;
+
+    riwayatKlik.forEach((k, i) => {
+      html += `
+        <div class="riwayat-item">
+          <span>#${i + 1}: x = ${k.x} , y = ${k.y}</span>
+          <button class="btn-copy-item" data-x="${k.x}" data-y="${k.y}">📋</button>
+        </div>
+      `;
+    });
+
+    riwayat.innerHTML = html;
+
+    // Event listener: copy semua
+    document.getElementById('btnCopySemua').addEventListener('click', (e) => {
+      const teks = riwayatKlik.map(k => `x=${k.x},y=${k.y}`).join('\n');
+      copyKeClipboard(teks, e.target, '✅ Semua koordinat dicopy!');
+    });
+
+    // Event listener: hapus semua
+    document.getElementById('btnHapusSemua').addEventListener('click', () => {
+      riwayatKlik = [];
+      koordinatAktif = null;
+      renderRiwayat();
+      btnCopy.style.display = 'none';
+      info.innerHTML = '<span class="placeholder">Tap/klik pada gambar untuk melihat koordinat.</span>';
+      info.appendChild(btnCopy);
+      // Hapus marker
+      const markerLama = container.querySelector('.marker');
+      if (markerLama) markerLama.remove();
+    });
+
+    // Event listener: copy per item
+    riwayat.querySelectorAll('.btn-copy-item').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const x = e.target.dataset.x;
+        const y = e.target.dataset.y;
+        copyKeClipboard(`x=${x},y=${y}`, e.target, '✅ Dicopy!');
+      });
+    });
+  }
+
+  /* ============================
+     5. Tombol copy koordinat aktif
+     ============================ */
+  btnCopy.addEventListener('click', (e) => {
+    if (!koordinatAktif) return;
+    const teks = `x=${koordinatAktif.x},y=${koordinatAktif.y}`;
+    copyKeClipboard(teks, e.target, '✅ Koordinat dicopy!');
+  });
+
+  /* ============================
+     6. Fungsi copy ke clipboard
+     ============================ */
+  async function copyKeClipboard(teks, tombol, pesanSukses) {
+    try {
+      // Cara modern
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(teks);
+      } else {
+        // Fallback untuk http:// atau browser lama
+        fallbackCopy(teks);
+      }
+
+      // Feedback visual di tombol
+      if (tombol) {
+        const teksAsli = tombol.textContent;
+        tombol.classList.add('copied');
+        tombol.textContent = '✅';
+        setTimeout(() => {
+          tombol.classList.remove('copied');
+          tombol.textContent = teksAsli;
+        }, 1500);
+      }
+
+      tampilkanToast(pesanSukses);
+
+    } catch (err) {
+      console.error('Gagal copy:', err);
+      tampilkanToast('❌ Gagal copy: ' + err.message);
+    }
+  }
+
+  /* Fallback copy untuk http:// (non-secure context) */
+  function fallbackCopy(teks) {
+    const textarea = document.createElement('textarea');
+    textarea.value = teks;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    textarea.setSelectionRange(0, 99999);
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+  }
+
+  /* ============================
+     7. Toast notifikasi
+     ============================ */
+  let toastTimer = null;
+  function tampilkanToast(pesan) {
+    toast.textContent = pesan;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.remove('show');
+    }, 2000);
+  }
+</script>
+
+</body>
+</html>
