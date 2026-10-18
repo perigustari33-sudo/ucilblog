@@ -405,7 +405,7 @@
      ============================ */
   btnCopy.addEventListener('click', (e) => {
     if (!koordinatAktif) return;
-    const teks = `x=${koordinatAktif.x},y=${koordinatAktif.y}`;
+    const teks = `adb shell input tap ${koordinatAktif.x} ${koordinatAktif.y}`;
     copyKeClipboard(teks, e.target, '✅ Koordinat dicopy!');
   });
 
