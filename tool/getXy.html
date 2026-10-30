@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upload Gambar & Ambil Koordinat</title>
+<style>
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f0f2f5;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  h1 {
+    font-size: 20px;
+    color: #333;
+    margin: 0 0 16px 0;
+    text-align: center;
+  }
+
+  .wrapper {
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* ============================
+     INFO KOORDINAT (di atas gambar)
+     ============================ */
+  #info {
+    background: #fff;
+    padding: 14px 18px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    font-family: monospace;
+    font-size: 15px;
+    line-height: 1.8;
+    min-height: 60px;
+    border-left: 4px solid #007bff;
+  }
+  #info .placeholder {
+    color: #999;
+    font-style: italic;
+  }
+  #info .label { color: #666; }
+  #info .value { color: #007bff; font-weight: bold; }
+
+  /* ============================
+     TOMBOL PILIH GAMBAR (di bawah info)
+     ============================ */
+  .upload-area {
+    text-align: center;
+  }
+
+  .upload-btn {
+    display: inline-block;
+    background: #007bff;
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    transition: background 0.2s;
+    border: none;
+  }
+  .upload-btn:hover { background: #0056b3; }
+  .upload-btn:active { transform: scale(0.98); }
+
+  #fileInput { display: none; }
+
+  /* ============================
+     CONTAINER GAMBAR
+     ============================ */
+  #container {
+    position: relative;
+    display: none; /* disembunyikan sebelum upload */
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    width: 100%;
+  }
+
+  #gambar {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    cursor: crosshair;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  /* Tombol salin */
+  .copy-btn {
+    margin-top: 8px;
+    background: #28a745;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .copy-btn:hover { background: #1e7e34; }
+  .copy-btn:active { transform: scale(0.97); }
+  .copy-btn.berhasil { background: #6c757d; }
+
+  /* Marker titik tap */
+  .marker {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #ff3b30;
+    border-radius: 50%;
+    background: rgba(255, 59, 48, 0.3);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    animation: pop 0.2s ease-out;
+  }
+  @keyframes pop {
+    from { transform: translate(-50%, -50%) scale(0); }
+    to   { transform: translate(-50%, -50%) scale(1); }
+  }
+
+  /* Riwayat klik */
+  #riwayat {
+    font-family: monospace;
+    font-size: 13px;
+    color: #666;
+    max-height: 120px;
+    overflow-y: auto;
+    background: #fff;
+    padding: 12px;
+    border-radius: 8px;
+    display: none;
+    border-left: 4px solid #28a745;
+  }
+</style>
+</head>
+<body>
+
+<h1>📍 JZ02_V30 project/Upload Gambar & Tap untuk Koordinat</h1>
+
+<div class="wrapper">
+
+  <!-- 1. INFO KOORDINAT (di atas) -->
+  <div id="info">
+    <span class="placeholder">Belum ada gambar. Pilih gambar di bawah dulu.</span>
+  </div>
+
+  <!-- 2. TOMBOL PILIH GAMBAR (di bawah info) -->
+  <div class="upload-area">
+    <label for="fileInput" class="upload-btn">📁 Pilih Gambar</label>
+    <input type="file" id="fileInput" accept="image/*">
+  </div>
+
+  <!-- 3. CONTAINER GAMBAR -->
+  <div id="container">
+    <img id="gambar" alt="Gambar yang diupload">
+  </div>
+
+  <!-- 4. RIWAYAT KLIK -->
+  <div id="riwayat"></div>
+
+</div>
+
+<script>
+  const fileInput = document.getElementById('fileInput');
+  const container = document.getElementById('container');
+  const gambar    = document.getElementById('gambar');
+  const info      = document.getElementById('info');
+  const riwayat   = document.getElementById('riwayat');
+
+  let riwayatKlik = [];
+  let perintahTerakhir = '';
+
+  /* ============================
+     1. Handle upload gambar
+     ============================ */
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      gambar.src = event.target.result;
+
+      container.style.display = 'block';
+      riwayat.style.display = 'block';
+      riwayatKlik = [];
+
+      info.innerHTML = '<span class="placeholder">Tap/klik pada gambar untuk melihat koordinat.</span>';
+      riwayat.innerHTML = '';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  /* ============================
+     2. Handle tap / klik
+     ============================ */
+  gambar.addEventListener('click', handleTap);
+
+  gambar.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    handleTap(e.touches[0]);
+  }, { passive: false });
+
+  function handleTap(e) {
+    const rect = gambar.getBoundingClientRect();
+
+    const xDisplay = e.clientX - rect.left;
+    const yDisplay = e.clientY - rect.top;
+
+    const scaleX = gambar.naturalWidth  / gambar.width;
+    const scaleY = gambar.naturalHeight / gambar.height;
+
+    const xAsli = Math.round(xDisplay * scaleX);
+    const yAsli = Math.round(yDisplay * scaleY);
+
+    // Marker di posisi tap
+    tampilkanMarker(xDisplay, yDisplay);
+
+    // Teks perintah yang akan disalin (x dan y dari hasil perhitungan)
+    perintahTerakhir = `adb shell input tap ${xAsli} ${yAsli}`;
+
+    // Update info (di atas gambar)
+    info.innerHTML = `
+      <div><span class="label">Resolusi asli :</span>
+           <span class="value">${gambar.naturalWidth} × ${gambar.naturalHeight} px</span></div>
+      <div><span class="label">Koordinat asli :</span>
+           <span class="value">${perintahTerakhir}</span></div>
+      <button type="button" class="copy-btn" id="copyBtn">📋 Salin</button>
+    `;
+    document.getElementById('copyBtn').addEventListener('click', salinPerintah);
+
+    // Simpan riwayat
+    riwayatKlik.push({ x: xAsli, y: yAsli });
+    renderRiwayat();
+
+    console.log(`Koordinat asli: x=${xAsli}, y=${yAsli}`);
+  }
+
+  /* ============================
+     Salin perintah ke clipboard
+     ============================ */
+  async function salinPerintah() {
+    if (!perintahTerakhir) return;
+    const btn = document.getElementById('copyBtn');
+
+    let ok = false;
+    try {
+      await navigator.clipboard.writeText(perintahTerakhir);
+      ok = true;
+    } catch (err) {
+      // Fallback untuk browser/konteks yang tidak mendukung Clipboard API
+      const ta = document.createElement('textarea');
+      ta.value = perintahTerakhir;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      ta.remove();
+    }
+
+    btn.textContent = ok ? '✅ Tersalin!' : '❌ Gagal menyalin';
+    btn.classList.add('berhasil');
+    setTimeout(() => {
+      btn.textContent = '📋 Salin';
+      btn.classList.remove('berhasil');
+    }, 1500);
+  }
+
+  /* ============================
+     3. Tampilkan marker
+     ============================ */
+  function tampilkanMarker(x, y) {
+    const markerLama = container.querySelector('.marker');
+    if (markerLama) markerLama.remove();
+
+    const marker = document.createElement('div');
+    marker.className = 'marker';
+    marker.style.left = x + 'px';
+    marker.style.top  = y + 'px';
+    container.appendChild(marker);
+  }
+
+  /* ============================
+     4. Render riwayat klik
+     ============================ */
+  function renderRiwayat() {
+    if (riwayatKlik.length === 0) {
+      riwayat.innerHTML = '';
+      return;
+    }
+    riwayat.innerHTML = '<strong>Riwayat klik:</strong><br>' +
+      riwayatKlik.map((k, i) => `#${i + 1}: x = ${k.x} , y = ${k.y}`).join('<br>');
+  }
+</script>
+
+</body>
+</html>
