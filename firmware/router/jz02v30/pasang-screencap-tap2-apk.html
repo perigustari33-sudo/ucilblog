@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Screencap di 4G-UFI-xxxx (JZ02-V30 MSM8916)</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+    line-height: 1.7;
+    color: #2c3e50;
+    background: #f5f7fa;
+    margin: 0;
+    padding: 0;
+  }
+  .container {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 30px 20px 60px;
+    background: #ffffff;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+  h1 {
+    font-size: 1.9em;
+    color: #1a252f;
+    border-bottom: 3px solid #3498db;
+    padding-bottom: 12px;
+    margin-top: 0;
+  }
+  h2 {
+    font-size: 1.4em;
+    color: #2980b9;
+    margin-top: 38px;
+    border-left: 4px solid #3498db;
+    padding-left: 12px;
+  }
+  h3 {
+    font-size: 1.15em;
+    color: #34495e;
+    margin-top: 24px;
+  }
+  a { color: #3498db; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  p { margin: 12px 0; }
+  pre {
+    background: #1e272e;
+    color: #e8f0f5;
+    padding: 14px 16px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.92em;
+    line-height: 1.5;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+  code {
+    background: #ecf0f1;
+    color: #c0392b;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 0.9em;
+  }
+  pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+    font-size: 1em;
+  }
+  blockquote {
+    border-left: 4px solid #f39c12;
+    background: #fef9e7;
+    margin: 16px 0;
+    padding: 10px 18px;
+    color: #7d6608;
+    border-radius: 0 6px 6px 0;
+  }
+  .download-link {
+    display: inline-block;
+    background: #3498db;
+    color: #fff !important;
+    padding: 8px 16px;
+    border-radius: 6px;
+    margin: 6px 0;
+    font-weight: 600;
+    text-decoration: none !important;
+  }
+  .download-link:hover { background: #2980b9; }
+  .note-box {
+    background: #eaf4fc;
+    border: 1px solid #aed6f1;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 18px 0;
+  }
+  .note-box strong { color: #1a5276; }
+  .warn-box {
+    background: #fdf2e9;
+    border: 1px solid #f5cba7;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 18px 0;
+    color: #7e5109;
+  }
+  .once-box {
+    background: #eafaf1;
+    border: 1px solid #a9dfbf;
+    border-left: 5px solid #27ae60;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 18px 0;
+    color: #196f3d;
+  }
+  .once-box strong { color: #145a32; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 0.95em;
+  }
+  th, td {
+    border: 1px solid #d5dbdb;
+    padding: 10px 12px;
+    text-align: left;
+  }
+  th {
+    background: #3498db;
+    color: #fff;
+  }
+  tr:nth-child(even) { background: #f4f6f7; }
+  hr {
+    border: none;
+    border-top: 1px solid #e1e8ed;
+    margin: 30px 0;
+  }
+  .footer {
+    text-align: center;
+    color: #7f8c8d;
+    font-size: 0.9em;
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>Aplikasi Screencap tap2 di 4G-UFI-xxxx (JZ02-V30 MSM8916)</h1>
+
+  <p>Sebelum aplikasi bisa dipasang dan digunakan, perangkat UFInya harus memiliki akses root terlebih dahulu (Chainfire, Magisk, atau root bawaan). Untuk perangkat (<strong>JZ02-V30 MSM8916</strong>), saya sudah menulis panduan lengkap cara root-nya di sini:</p>
+
+  <p>👉 <a href="https://jendraljacktrik.blogspot.com/2026/10/cara-root-h760r-msm8916-versi-board.html?m=1" target="_blank" rel="noopener">Cara Root JZ02_V30 MSM8916 Versi Board</a></p>
+
+  <div class="note-box">
+    <strong>Bagi yang sudah root</strong>, silakan lewati artikel root tersebut. <strong>Bagi yang punya PC</strong>, juga bisa melewati langkah ini karena di PC sudah tersedia <strong>ARDC</strong> (Android Remote Debug Console).
+  </div>
+
+  <h2>Jika UFI 4G Sudah Root — Ikuti Langkah Berikut</h2>
+
+  <h3>Persiapan</h3>
+  <ol>
+    <li>
+      <strong>Pasang ADBify</strong> di HP yang mendukung OTG.<br>
+      👉 <a class="download-link" href="https://play.google.com/store/apps/details?id=com.rv882.adbify" target="_blank" rel="noopener">ADBify di Google Play Store</a><br>
+      Siapkan juga <strong>kabel USB OTG</strong>.
+    </li>
+    <li>
+      <strong>Unduh aplikasi ScreenTap</strong> (ScreenJZ02).<br>
+      👉 <a class="download-link" href="https://yadisupri.cloud-ip.cc/firmware/router/jz02v30/cc.yadisupri.screenjz02.apk" target="_blank" rel="noopener">Download cc.yadisupri.screenjz02.apk</a><br>
+      Simpan file APK ke folder <code>Download</code> di HP.
+    </li>
+    <li><strong>Hubungkan kabel OTG</strong> ke HP.</li>
+  </ol>
+
+  <h3>Langkah 1 — Deteksi Device via ADB</h3>
+  <ul>
+    <li>Buka <strong>ADBify</strong></li>
+    <li>Izinkan koneksi Android ADB</li>
+    <li>Pastikan device terdeteksi dengan perintah:</li>
+  </ul>
+  <pre><code>adb devices</code></pre>
+
+  <h3>Langkah 2 — Pasang APK ScreenJZ02 di UFI</h3>
+  <p>APK ScreenJZ02 harus dipasang dulu di perangkat UFI. Ada dua cara:</p>
+
+  <p><strong>Cara A — Push lalu install manual:</strong></p>
+  <pre><code>adb push /sdcard/Download/cc.yadisupri.screenjz02.apk /sdcard/myapp.apk
+adb shell pm install /sdcard/myapp.apk</code></pre>
+
+  <p><strong>Cara B — Install langsung dari folder Download:</strong></p>
+  <pre><code>adb install /sdcard/Download/cc.yadisupri.screenjz02.apk</code></pre>
+
+  <div class="warn-box">
+    ⚠️ <strong>Perhatikan:</strong> pastikan nama file APK sama persis dengan yang ada di folder <code>Download</code> HP. Jika berbeda, sesuaikan perintahnya.
+  </div>
+
+  <h3>Langkah 3 — Buka Magisk &amp; Izinkan Akses Root (Hanya Sekali)</h3>
+  <p>Jalankan aplikasi ScreenJZ02, lalu buka Magisk untuk memberikan izin root:</p>
+  <pre><code>adb shell am start -n cc.yadisupri.screenjz02/.MainActivity
+sleep 3
+adb shell am start com.topjohnwu.magisk/.core.SplashActivity</code></pre>
+
+  <p>Ambil gambar (screenshot) untuk keperluan penentuan koordinat tombol <em>Grant/Allow</em>:</p>
+  <pre><code>adb shell screencap /sdcard/king.png &amp;&amp; adb pull /sdcard/king.png /sdcard/king.png</code></pre>
+
+  <div class="once-box">
+    ✅ <strong>Langkah ini hanya dilakukan SEKALI.</strong><br>
+    Tujuan membuka Magisk di sini adalah untuk <strong>mengizinkan permintaan akses root aplikasi ScreenJZ02</strong>. Setelah izin diberikan dan perangkat di-reboot, kamu <strong>tidak perlu lagi</strong> membuka Magisk atau mengulangi langkah ini di kemudian hari.
+  </div>
+
+  <h3>Langkah 4 — Ambil Koordinat &amp; Klik Tombol Izinkan</h3>
+  <ol>
+    <li>Buka situs pengambil koordinat:<br>
+      👉 <a href="https://yadisupri.cloud-ip.cc/tool/getXy.html" target="_blank" rel="noopener">https://yadisupri.cloud-ip.cc/tool/getXy.html</a>
+    </li>
+    <li>Upload gambar <code>king.png</code> tadi, lalu <strong>salin koordinat (x y)</strong> posisi tombol <em>Grant/Allow</em> pada popup Magisk.</li>
+    <li>Kembali ke ADBify, ketik:</li>
+  </ol>
+  <pre><code>adb shell input tap x y</code></pre>
+  <blockquote>Ganti <code>x</code> dan <code>y</code> dengan koordinat hasil dari situs tadi.</blockquote>
+
+  <p>Setelah izin diberikan, <strong>reboot</strong> perangkat sekali saja.</p>
+
+  <h2>Akses Screencap di Kemudian Hari</h2>
+  <p>Setelah izin root permanen tersimpan, untuk mengakses <strong>Screencap</strong> lagi kamu <strong>cukup</strong> menjalankan aplikasinya lewat ADB (tanpa perlu buka Magisk lagi):</p>
+  <pre><code>adb shell am start -n cc.yadisupri.screenjz02/.MainActivity</code></pre>
+
+  <p>Lalu buka browser di HP yang terhubung ke jaringan, akses:</p>
+  <pre><code>http://192.168.100.1:9009</code></pre>
+
+  <h2>Membuat Akses Permanen (Tanpa ADB Setiap Kali)</h2>
+  <p>Cara di atas memang <strong>merepotkan</strong> karena harus lewat ADB setiap kali ingin membuka Screencap. Jika ingin <strong>permanen</strong>, kita bisa mengaktifkan <strong>adbd wireless</strong> dengan menambahkan properti berikut:</p>
+  <pre><code>persist.adb.tcp.port=5555</code></pre>
+
+  <p>Setelah itu, gunakan aplikasi <strong>ADB WiFi</strong> untuk mengakses perangkat secara nirkabel:</p>
+  <p>👉 <a class="download-link" href="https://play.google.com/store/apps/details?id=com.cgutman.androidremotedebugger" target="_blank" rel="noopener">ADB WiFi (Remote Debugger)</a></p>
+
+  <p>Dengan begitu, kamu tidak perlu lagi menghubungkan kabel OTG setiap kali ingin menjalankan perintah ADB — cukup melalui koneksi WiFi.</p>
+
+  <hr>
+
+  <h2>Ringkasan Alur</h2>
+  <table>
+    <thead>
+      <tr><th>Tahap</th><th>Aksi</th><th>Frekuensi</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Pastikan UFI sudah root (Magisk/Chainfire/bawaan)</td><td>Sekali</td></tr>
+      <tr><td>2</td><td>Pasang ADBify di HP OTG + unduh APK ScreenJZ02</td><td>Sekali</td></tr>
+      <tr><td>3</td><td>Deteksi device via <code>adb devices</code></td><td>Tiap sesi ADB</td></tr>
+      <tr><td>4</td><td><strong>Pasang APK ScreenJZ02 di UFI</strong> via <code>adb install</code> atau <code>adb push</code> + <code>pm install</code></td><td>Sekali</td></tr>
+      <tr><td>5</td><td><strong>Buka Magisk &amp; izinkan akses root ScreenJZ02</strong></td><td><strong>Sekali</strong></td></tr>
+      <tr><td>6</td><td>Screenshot → ambil koordinat → <code>input tap</code> tombol Grant</td><td>Sekali</td></tr>
+      <tr><td>7</td><td>Reboot</td><td>Sekali</td></tr>
+      <tr><td>8</td><td>Jalankan ScreenJZ02 → buka <code>http://192.168.100.1:9009</code></td><td>Tiap kali pakai</td></tr>
+      <tr><td>9</td><td>(Opsional) Aktifkan <code>persist.adb.tcpip.port=5555</code> + ADB WiFi untuk akses permanen</td><td>Sekali</td></tr>
+    </tbody>
+  </table>
+
+  <div class="footer">
+    Semoga membantu! Jika ada kendala di salah satu langkah, silakan tulis di kolom komentar. 🚀
+  </div>
+
+</div>
+</body>
+</html>
