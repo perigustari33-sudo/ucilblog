@@ -229,7 +229,13 @@ adb shell am start com.topjohnwu.magisk/.core.SplashActivity</code></pre>
 
   <h2>Membuat Akses Permanen (Tanpa ADB Setiap Kali)</h2>
   <p>Cara di atas memang <strong>merepotkan</strong> karena harus lewat ADB setiap kali ingin membuka Screencap. Jika ingin <strong>permanen</strong>, kita bisa mengaktifkan <strong>adbd wireless</strong> dengan menambahkan properti berikut:</p>
-  <pre><code>persist.adb.tcp.port=5555</code></pre>
+  <pre>
+  <code>
+### permanen di build.prop ###
+echo "persist.adb.tcp.port=5555" >> /system/build.prop
+## atau sementara hingga wipe data ###
+setprop persist.adb.tcp.port 5555
+reboot</code></pre>
 
   <p>Setelah itu, gunakan aplikasi <strong>ADB WiFi</strong> untuk mengakses perangkat secara nirkabel:</p>
   <p>👉 <a class="download-link" href="https://play.google.com/store/apps/details?id=com.cgutman.androidremotedebugger" target="_blank" rel="noopener">ADB WiFi (Remote Debugger)</a></p>
